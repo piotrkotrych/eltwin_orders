@@ -30,15 +30,21 @@ try {
 
 switch ($_GET['type']) {
 
-  case 'getUserInfo':
+  case 'tryLogin':
 
     $login = $_GET['login'];
+    $pass = $_GET['pass'];
 
-    $stmt = $pdo->prepare("SELECT id, login as name, orders_level as level, email FROM users WHERE login = ?");
+    $stmt = $pdo->prepare("SELECT id, login, email, level, lastvisit, name, secondname, tel, avatar FROM orders_users WHERE login = ? and pass = sha1(?)");
 
-    $stmt->execute([$login]);
+    $stmt->execute([$login, $pass]);
 
     $arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $lvid = $arr[0]["id"];
+
+    $lastvisit = $pdo->prepare("UPDATE orders_users SET lastvisit = NOW() where id = ?");
+    $lastvisit->execute([$lvid]);
 
     if(!$arr) exit(http_response_code( 400 ));
 

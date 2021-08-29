@@ -1,0 +1,24 @@
+$eltwin-dark: rgb(0, 77, 61);
+
+$eltwin-light: rgb(0, 151, 103);
+
+$primary: $eltwin-light;
+
+$secondary: $eltwin-dark;
+
+.btn-primary {
+  color: #fff !important;
+}
+
+@import "../node_modules/bootstrap/scss/bootstrap";
+
+.notLoggedIn {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 20vh;
+}
+
+.loginBox h3 {
+  margin-bottom: 20px;
+}
