@@ -2,7 +2,7 @@
 
 header("Access-Control-Allow-Origin: *");
 
-$dsn = "mysql:host=10.47.8.236;dbname=elt";
+$dsn = "mysql:host=10.47.8.236;dbname=elt;charset=utf8";
 
 $options = [
 
@@ -49,6 +49,29 @@ switch ($_GET['type']) {
     if(!$arr) exit(http_response_code( 400 ));
 
     echo json_encode($arr[0]);
+
+    $stmt = null;
+
+    break;
+
+  case 'getRodzajeDzialy':
+
+    $stmt = $pdo->prepare("SELECT * FROM orders_rodzaje order by id asc");
+
+    $stmt->execute([]);
+
+    $arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmt = $pdo->prepare("SELECT dzial FROM orders_dzialy WHERE rodzaj_id=:id order by id asc");
+
+    foreach ($arr as $key => $val) {
+      $stmt->execute(array(':id' => $key+1));
+      $arr[$key]["dzial"] = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+    
+    if(!$arr) exit(http_response_code( 400 ));
+
+    echo json_encode($arr);
 
     $stmt = null;
 
