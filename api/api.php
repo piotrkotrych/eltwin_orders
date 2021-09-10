@@ -46,7 +46,7 @@ switch ($_GET['type']) {
     $lastvisit = $pdo->prepare("UPDATE orders_users SET lastvisit = NOW() where id = ?");
     $lastvisit->execute([$lvid]);
 
-    if(!$arr) exit(http_response_code( 400 ));
+    if(!$arr) exit(http_response_code( 500 ));
 
     echo json_encode($arr[0]);
 
@@ -69,7 +69,7 @@ switch ($_GET['type']) {
       $arr[$key]["dzial"] = $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
     
-    if(!$arr) exit(http_response_code( 400 ));
+    if(!$arr) exit(http_response_code( 500 ));
 
     echo json_encode($arr);
 
@@ -77,29 +77,73 @@ switch ($_GET['type']) {
 
     break;
 
-  
-  case 'checkUserToken':
+  case 'postFormData':
 
-    $login = $_GET['login'];
-    $level = $_GET['level'];
-    $email = $_GET['email'];
+    $data = (array) json_decode(file_get_contents('php://input'));
 
-    $stmt = $pdo->prepare("SELECT id, login as name, orders_level as level FROM users WHERE login = ? and orders_level = ? and email = ?");
+    foreach ($data['produkty'] as $key => $value) {
+      $produkty[$key] = (array) $value;
+    }
 
-    $stmt->execute([$login,$level,$email]);
+    try {
+    $sql = $pdo->prepare("INSERT INTO orders_form (user_added, ordered_by, initials, email, rodzaj, dzial, cel, firma, kontakt_osoba, kontakt_email, kontakt_telefon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-    $arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $sql->execute([$data['initials'], $data['ordered_by'], $data['initials'], $data['email'], $data['rodzaj'], $data['dzial'], $data['cel'], $data['firma'], $data['kontakt_osoba'], $data['kontakt_email'], $data['kontakt_telefon']]);
 
-    if(!$arr) exit(http_response_code( 404 ));
+    $id = $pdo->lastInsertId();
+    // echo $id;
+    // var_dump($produkty);
 
-    // echo json_encode($arr[0]);
-    return true;
+    $query = $pdo->prepare("INSERT INTO orders_produkty (form_id, user_added, indeks, nazwa, ilosc, jednostka, link, cena, koszt_wysylki, uwagi) values (?,?,?,?,?,?,?,?,?,?)");
 
-    $stmt = null;
+      foreach ($produkty as $key => $value) {
+
+        if(!$produkty[$key]['koszt_wysylki'] > 0){
+          $produkty[$key]['koszt_wysylki'] = 0;
+        }
+        
+        $query->execute([$id, $data['initials'], $produkty[$key]['indeks'], $produkty[$key]['nazwa'], $produkty[$key]['ilosc'], $produkty[$key]['jednostka'], $produkty[$key]['link'], $produkty[$key]['cena'], $produkty[$key]['koszt_wysylki'], $produkty[$key]['uwagi']]);
+
+      }
+
+      $sql = null;
+      $query = null;
+
+    }
+
+    catch(PDOException $err){
+      exit(http_response_code( 500 ));
+    }
+
 
     break;
 
-  
+  case 'getAllOrders':
+
+    try{
+      $sql = $pdo->prepare("SELECT * FROM orders_form");
+
+      $sql->execute([]);
+
+      $arr = $sql->fetchAll(PDO::FETCH_ASSOC);
+
+      $query = $pdo->prepare("SELECT * FROM orders_produkty WHERE form_id = ?");
+
+      foreach ($arr as $key => $value) {
+        $query->execute([$arr[$key]['id']]);
+        $arr[$key]['produkty'] = $query->fetchAll(PDO::FETCH_ASSOC);
+      }
+
+      if(!$arr) exit(http_response_code( 500 ));
+
+      echo json_encode($arr);
+
+      $sql = null;
+      $query = null;
+    }
+    catch(PDOException $err){exit(http_response_code( 500 ));}
+
+    break;
 
   default:
 

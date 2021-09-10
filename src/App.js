@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Navbar from "./comp/Navbar";
 import Dashboard from "./comp/Dashboard";
 import Form from "./comp/Form";
+import Orders from "./comp/Orders";
 
 function App() {
   const [login, setLogin] = useState({});
@@ -17,7 +18,7 @@ function App() {
 
   async function tryLogin(login, pass, remember) {
     const trylogin = await fetch(
-      "http://localhost/eltwin_orders/api/api.php?type=tryLogin&login=" +
+      "http://10.47.8.62/eltwin_orders/api/api.php?type=tryLogin&login=" +
         login +
         "&pass=" +
         pass
@@ -96,6 +97,9 @@ function App() {
               <Route path="/form" exact>
                 <Form user={login} />
               </Route>
+              <Route>
+                <Orders user={login} />
+              </Route>
             </Switch>
           </div>
         ) : (
@@ -148,7 +152,7 @@ function App() {
                   </label>
                 </div>
                 <button type="submit" className="btn btn-primary">
-                  Submit
+                  Zaloguj się
                 </button>
               </form>
             </div>

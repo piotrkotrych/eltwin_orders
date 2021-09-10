@@ -2,13 +2,26 @@ import { React, useState, useEffect } from "react";
 
 function Form({ user }) {
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmit, setIsSubmit] = useState(false);
+  const [alert, setAlert] = useState(null);
   const [rodzaje, setRodzaje] = useState();
+  const [jednostki] = useState([
+    "sztuki",
+    "metry",
+    "centymetry",
+    "kilogramy",
+    "gram",
+    "litry",
+    "mililitry",
+  ]);
   const [formValues, setFormValues] = useState({
     rodzaj: "",
     dzial: "",
     cel: "",
     firma: "",
-    kontakt: "",
+    kontakt_osoba: "",
+    kontakt_email: "",
+    kontakt_telefon: "",
     produkty: [
       {
         indeks: "",
@@ -17,6 +30,7 @@ function Form({ user }) {
         jednostka: "",
         link: "",
         cena: "",
+        koszt_wysylki: "",
         uwagi: "",
       },
     ],
@@ -29,7 +43,7 @@ function Form({ user }) {
     if (isLoading) {
       const getRodzajeDzialy = async () => {
         const get = await fetch(
-          "http://localhost/eltwin_orders/api/api.php?type=getRodzajeDzialy"
+          "http://10.47.8.62/eltwin_orders/api/api.php?type=getRodzajeDzialy"
         );
         const res = await get.json();
         setRodzaje(res);
@@ -72,6 +86,7 @@ function Form({ user }) {
           jednostka: "",
           link: "",
           cena: "",
+          koszt_wysylki: "",
           uwagi: "",
         },
       ],
@@ -86,13 +101,88 @@ function Form({ user }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    console.log(formValues);
+
+    const submit = async () => {
+      setIsSubmit(true);
+      const options = {
+        method: "POST",
+        body: JSON.stringify(formValues),
+      };
+      const req = await fetch(
+        "http://10.47.8.62/eltwin_orders/api/api.php?type=postFormData",
+        options
+      );
+
+      const res = await req.ok;
+      console.log(res);
+      if (res) {
+        setIsSubmit(false);
+        setAlert({
+          text: "Formularz został wysłany do akceptacji",
+          type: "success",
+        });
+        setFormValues({
+          rodzaj: "",
+          dzial: "",
+          cel: "",
+          firma: "",
+          kontakt_osoba: "",
+          kontakt_email: "",
+          kontakt_telefon: "",
+          produkty: [
+            {
+              indeks: "",
+              nazwa: "",
+              ilosc: null,
+              jednostka: "",
+              link: "",
+              cena: "",
+              koszt_wysylki: "",
+              uwagi: "",
+            },
+          ],
+          ordered_by: user.name + " " + user.secondname,
+          initials: user.login,
+          email: user.email,
+        });
+      } else {
+        setAlert({
+          text: "Błąd dodawania formularza, skontaktuj się z pko@eltwin.com",
+          type: "danger",
+        });
+        setIsSubmit(false);
+      }
+    };
+    submit();
   }
+
+  const clearAlert = () => {
+    setAlert(null);
+  };
 
   return (
     <div className="container-fluid">
       {!isLoading ? (
         <div>
+          {alert ? (
+            <>
+              <div
+                className={
+                  "m-4 alert-dismissible fade show alert alert-" + alert.type
+                }
+                role="alert"
+              >
+                {alert.text}
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="alert"
+                  aria-label="Close"
+                  onClick={clearAlert}
+                ></button>
+              </div>
+            </>
+          ) : null}
           <h2 className="m-4">Formularz zamówienia</h2>
           <form className="formularz m-4" onSubmit={handleSubmit}>
             <h4>Informacje ogólne</h4>
@@ -107,6 +197,7 @@ function Form({ user }) {
                     id="rodzaj"
                     className="form-select"
                     onChange={handleChange}
+                    value={formValues.rodzaj}
                     required
                   >
                     <option value=""></option>
@@ -134,6 +225,7 @@ function Form({ user }) {
                       id="dzial"
                       className="form-select"
                       onChange={handleChange}
+                      value={formValues.dzial}
                       required
                     >
                       <option value=""></option>
@@ -211,22 +303,49 @@ function Form({ user }) {
                   <div className="form-text">Nazwa firmy...</div>
                 </div>
               </div>
-              <div className="col-md">
+              <div className="col-md-3">
                 <div className="form-group">
-                  <label htmlFor="#kontakt" className="form-label">
-                    Dane kontaktowe
+                  <label htmlFor="#kontakt_osoba" className="form-label">
+                    Dane kontaktowe: osoba
                   </label>
                   <input
                     type="text"
-                    name="kontakt"
-                    id="kontakt"
+                    name="kontakt_osoba"
+                    id="kontakt_osoba"
                     className="form-control"
-                    value={formValues.kontakt}
+                    value={formValues.kontakt_osoba}
                     onChange={handleChange}
                   />
-                  <div className="form-text">
-                    Osoba, numer telefonu, email itp.
-                  </div>
+                </div>
+              </div>
+              <div className="col-md-1">
+                <div className="form-group">
+                  <label htmlFor="#kontakt_email" className="form-label">
+                    email
+                  </label>
+                  <input
+                    type="email"
+                    name="kontakt_email"
+                    id="kontakt_email"
+                    className="form-control"
+                    value={formValues.kontakt_email}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+              <div className="col-md-1">
+                <div className="form-group">
+                  <label htmlFor="#kontakt_telefon" className="form-label">
+                    telefon
+                  </label>
+                  <input
+                    type="tel"
+                    name="kontakt_telefon"
+                    id="kontakt_telefon"
+                    className="form-control"
+                    value={formValues.kontakt_telefon}
+                    onChange={handleChange}
+                  />
                 </div>
               </div>
             </div>
@@ -234,7 +353,7 @@ function Form({ user }) {
             {formValues.produkty.map((e, index) => {
               return (
                 <div className="produkt my-5" key={index}>
-                  <h4>Produkt {index + 1}:</h4>
+                  <h4>Produkt: {e.nazwa ? e.nazwa : index + 1}</h4>
                   <div className="row">
                     <div className="col-md-2">
                       <div className="form-group">
@@ -264,6 +383,7 @@ function Form({ user }) {
                           className="form-control"
                           value={e.nazwa}
                           onChange={(e) => handleChangeProdukt(index, e)}
+                          required
                         />
                       </div>
                       <div className="form-text">Nazwa produktu</div>
@@ -300,6 +420,7 @@ function Form({ user }) {
                           className="form-control"
                           value={e.ilosc || ""}
                           onChange={(e) => handleChangeProdukt(index, e)}
+                          required
                         />
                       </div>
                     </div>
@@ -308,23 +429,30 @@ function Form({ user }) {
                         <label htmlFor="#jednostka" className="form-label">
                           Jednostka
                         </label>
-                        <input
-                          type="text"
+                        <select
                           name="jednostka"
                           id="jednostka"
-                          className="form-control"
+                          className="form-select"
                           value={e.jednostka}
                           onChange={(e) => handleChangeProdukt(index, e)}
-                        />
-                        <div className="form-text">
-                          Jednostka miary np. sztuki, kg, metry itp.
-                        </div>
+                          required
+                        >
+                          <option value=""></option>
+                          {jednostki.map((e, index) => {
+                            return (
+                              <option key={index} value={e}>
+                                {e}
+                              </option>
+                            );
+                          })}
+                        </select>
+                        <div className="form-text">Jednostka miary...</div>
                       </div>
                     </div>
                     <div className="col-md-2">
                       <div className="form-group">
                         <label htmlFor="#cena" className="form-label">
-                          Cena netto + wysyłka
+                          Cena netto
                         </label>
                         <input
                           type="text"
@@ -333,10 +461,24 @@ function Form({ user }) {
                           className="form-control"
                           value={e.cena}
                           onChange={(e) => handleChangeProdukt(index, e)}
+                          required
                         />
-                        <div className="form-text">
-                          Cena netto i jeżeli to możliwe koszt wysyłki
-                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-2">
+                      <div className="form-group">
+                        <label htmlFor="#koszt_wysylki" className="form-label">
+                          Koszt wysyłki
+                        </label>
+                        <input
+                          type="text"
+                          name="koszt_wysylki"
+                          id="koszt_wysylki"
+                          className="form-control"
+                          value={e.koszt_wysylki}
+                          onChange={(e) => handleChangeProdukt(index, e)}
+                        />
+                        <div className="form-text">Jeżeli możliwe</div>
                       </div>
                     </div>
                     <div className="col-md">
@@ -374,25 +516,55 @@ function Form({ user }) {
                       </div>
                     ) : null}
                   </div>
-                  <hr className="bg-primary" />
+                  <hr />
                 </div>
               );
             })}
-            <div className="row my-4">
-              <div className="col-md-2">
-                <button
-                  className="btn btn-primary mb-3"
-                  onClick={() => addNewProdukt()}
-                >
-                  Dodaj kolejny produkt
-                </button>
+            {isSubmit ? (
+              <div className="row my-4">
+                <div className="col-md-2">
+                  <button
+                    className="btn btn-primary mb-3 form-control"
+                    disabled
+                  >
+                    Dodaj kolejny produkt
+                  </button>
+                </div>
+                <div className="col-md-2">
+                  <button
+                    type="button"
+                    disabled
+                    className="btn btn-primary form-control"
+                  >
+                    <span
+                      className="spinner-border spinner-border-sm"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    <span className="px-3">Wysyłam formularz...</span>
+                  </button>
+                </div>
               </div>
-              <div className="col-md-2">
-                <button type="submit" className="btn btn-primary">
-                  Wyślij formularz
-                </button>
+            ) : (
+              <div className="row my-4">
+                <div className="col-md-2">
+                  <button
+                    className="btn btn-primary mb-3 form-control"
+                    onClick={() => addNewProdukt()}
+                  >
+                    Dodaj kolejny produkt
+                  </button>
+                </div>
+                <div className="col-md-2">
+                  <button
+                    type="submit"
+                    className="btn btn-primary form-control"
+                  >
+                    Wyślij formularz
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </form>
         </div>
       ) : (

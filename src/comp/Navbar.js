@@ -1,13 +1,13 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 function Navbar({ user, logout }) {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-secondary">
       <div className="container-fluid">
-        <Link to="/" className="navbar-brand">
+        <NavLink to="/" className="navbar-brand">
           Eltwin Orders
-        </Link>
+        </NavLink>
         <button
           className="navbar-toggler"
           type="button"
@@ -22,30 +22,39 @@ function Navbar({ user, logout }) {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <Link to="/" className="nav-link">
+              <NavLink
+                activeClassName="active"
+                to="/"
+                className="nav-link"
+                exact
+              >
                 Panel
-              </Link>
+              </NavLink>
             </li>
             <li className="nav-item">
-              <Link to="/form" className="nav-link">
+              <NavLink activeClassName="active" to="/form" className="nav-link">
                 Formularz
-              </Link>
+              </NavLink>
             </li>
             <li className="nav-item">
-              <Link to="/" className="nav-link">
+              <NavLink
+                activeClassName="active"
+                to="/orders"
+                className="nav-link"
+              >
                 Zamówienia
-              </Link>
+              </NavLink>
             </li>
 
             <li className="nav-item">
-              <Link to="/" className="nav-link">
+              <NavLink activeClassName="active" to="/" className="nav-link">
                 Zatwierdzenia
-              </Link>
+              </NavLink>
             </li>
             <li className="nav-item">
-              <Link to="/" className="nav-link">
+              <NavLink activeClassName="active" to="/" className="nav-link">
                 Dostawcy
-              </Link>
+              </NavLink>
             </li>
           </ul>
           <div className="d-flex">
