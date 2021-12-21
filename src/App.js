@@ -1,11 +1,11 @@
 import "./App.scss";
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-// import "bootstrap/dist/css/bootstrap.min.css";
 import Navbar from "./comp/Navbar";
 import Dashboard from "./comp/Dashboard";
 import Form from "./comp/Form";
 import Orders from "./comp/Orders";
+import Order from "./comp/Order";
 
 function App() {
   const [login, setLogin] = useState({});
@@ -41,28 +41,28 @@ function App() {
     }
   }
 
-  function handleLogin(e) {
+  const handleLogin = (e) => {
     e.preventDefault();
     console.log("Zalogowano");
     tryLogin(loginForm.loginForm, loginForm.passForm, loginForm.rememberForm);
     setLoginForm({ loginForm: "", passForm: "", rememberForm: false });
-  }
-  function handleLoginForm(e) {
+  };
+  const handleLoginForm = (e) => {
     e.preventDefault();
     const target = e.target;
     const value = target.type === "checkbox" ? target.checked : target.value;
     const name = target.name;
 
     setLoginForm((oldValues) => ({ ...oldValues, [name]: value }));
-  }
+  };
 
-  function logout() {
+  const logout = () => {
     localStorage.clear();
     sessionStorage.clear();
     setLogin({});
     setIsLoggedIn(false);
     console.log("wylogowano");
-  }
+  };
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -95,10 +95,20 @@ function App() {
                 <Dashboard user={login} />
               </Route>
               <Route path="/form" exact>
-                <Form user={login} />
+                <Form
+                  user={login}
+                  edit={false}
+                  key={window.location.pathname}
+                />
               </Route>
-              <Route>
+              <Route path="/form/:editId">
+                <Form user={login} edit={true} />
+              </Route>
+              <Route path="/orders">
                 <Orders user={login} />
+              </Route>
+              <Route path="/order/:id">
+                <Order user={login} />
               </Route>
             </Switch>
           </div>

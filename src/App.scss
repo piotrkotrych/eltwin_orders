@@ -27,6 +27,15 @@ hr {
   margin-bottom: 20px;
 }
 
+.link-order {
+  text-decoration: none;
+  color: black;
+}
+.link-order:hover {
+  text-decoration: none;
+  color: black;
+}
+
 .blok {
   border-left: $primary 5px solid;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;

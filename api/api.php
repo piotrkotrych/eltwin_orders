@@ -118,6 +118,50 @@ switch ($_GET['type']) {
 
     break;
 
+  case 'updateFormData':
+
+    $id = $_GET['id'];
+    $user_modify = $_GET['user_modify'];
+
+    $data = (array) json_decode(file_get_contents('php://input'));
+
+    foreach ($data['produkty'] as $key => $value) {
+      $produkty[$key] = (array) $value;
+    }
+
+    try {
+    $sql = $pdo->prepare("UPDATE orders_form SET date_modified = now(), user_modify=?, ordered_by=?, initials=?, email=?, rodzaj=?, dzial=?, cel=?, firma=?, kontakt_osoba=?, kontakt_email=?, kontakt_telefon=? where id = ?");
+
+    $sql->execute([$user_modify, $data['ordered_by'], $data['initials'], $data['email'], $data['rodzaj'], $data['dzial'], $data['cel'], $data['firma'], $data['kontakt_osoba'], $data['kontakt_email'], $data['kontakt_telefon'], $id]);
+
+    // $id = $pdo->lastInsertId();
+    // echo $id;
+    // var_dump($produkty);
+
+    $query = $pdo->prepare("UPDATE orders_produkty SET indeks=?, nazwa=?, ilosc=?, jednostka=?, link=?, cena=?, koszt_wysylki=?, uwagi=? where id = ?");
+
+      foreach ($produkty as $key => $value) {
+
+        if(!$produkty[$key]['koszt_wysylki'] > 0){
+          $produkty[$key]['koszt_wysylki'] = 0;
+        }
+        
+        $query->execute([$produkty[$key]['indeks'], $produkty[$key]['nazwa'], $produkty[$key]['ilosc'], $produkty[$key]['jednostka'], $produkty[$key]['link'], $produkty[$key]['cena'], $produkty[$key]['koszt_wysylki'], $produkty[$key]['uwagi'], $produkty[$key]['id']]);
+
+      }
+
+      $sql = null;
+      $query = null;
+
+    }
+
+    catch(PDOException $err){
+      exit(http_response_code( 500 ));
+    }
+
+
+    break;
+
   case 'getAllOrders':
 
     try{
@@ -142,6 +186,74 @@ switch ($_GET['type']) {
       $query = null;
     }
     catch(PDOException $err){exit(http_response_code( 500 ));}
+
+    break;
+
+  case 'getOrder':
+
+    $id = $_GET['id'];
+
+    try {
+      $query = $pdo->prepare("SELECT * FROM orders_form WHERE id = ?");
+
+      $query->execute([$id]);
+
+      $arr = $query->fetchAll(PDO::FETCH_ASSOC);
+
+      if(!$arr) exit(http_response_code( 500 ));
+
+      $sql = $pdo->prepare("SELECT * FROM orders_produkty WHERE form_id = ?");
+
+      foreach($arr as $key => $value){
+        $sql->execute([$arr[$key]['id']]);
+        $arr[$key]['produkty'] = $sql->fetchAll(PDO::FETCH_ASSOC);
+      }
+
+      echo json_encode($arr);
+
+      $sql = null;
+      $query = null;
+    }
+    catch(PDOException $err){exit(http_response_code( 500 ));}
+
+    break;
+
+
+  case 'editForm':
+
+    $id = $_GET['id'];
+
+    try {
+      $query = $pdo->prepare("SELECT * FROM orders_form WHERE id = ?");
+
+      $query->execute([$id]);
+
+      $arr = $query->fetchAll(PDO::FETCH_ASSOC);
+
+      if(!$arr) exit(http_response_code( 500 ));
+
+      $sql = $pdo->prepare("SELECT * FROM orders_produkty WHERE form_id = ?");
+
+      foreach($arr as $key => $value){
+        $sql->execute([$arr[$key]['id']]);
+        $arr[$key]['produkty'] = $sql->fetchAll(PDO::FETCH_ASSOC);
+      }
+
+      echo json_encode($arr);
+
+      $sql = null;
+      $query = null;
+    }
+    catch(PDOException $err){exit(http_response_code( 500 ));}
+
+    break;
+
+
+  case "updateStatus":
+
+    $id = $_GET['id'];
+
+    
 
     break;
 

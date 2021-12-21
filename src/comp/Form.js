@@ -1,6 +1,8 @@
-import { React, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
-function Form({ user }) {
+function Form({ user, edit }) {
+  let { editId } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmit, setIsSubmit] = useState(false);
   const [alert, setAlert] = useState(null);
@@ -24,6 +26,7 @@ function Form({ user }) {
     kontakt_telefon: "",
     produkty: [
       {
+        id: null,
         indeks: "",
         nazwa: "",
         ilosc: null,
@@ -48,23 +51,38 @@ function Form({ user }) {
         const res = await get.json();
         setRodzaje(res);
         console.log(rodzaje);
-        setIsLoading(false);
+        if (editId) {
+          const editForm = async () => {
+            const get = await fetch(
+              "http://10.47.8.62/eltwin_orders/api/api.php?type=editForm&id=" +
+                editId
+            );
+            const res = await get.json();
+            console.log(res[0]);
+            setFormValues(res[0]);
+            setIsLoading(false);
+          };
+          editForm();
+        } else {
+          setIsLoading(false);
+        }
       };
+
       getRodzajeDzialy();
     } else {
       return () => {};
     }
-  }, [rodzaje, isLoading]);
+  }, [editId, isLoading, rodzaje]);
 
-  function handleChange(e) {
+  const handleChange = (e) => {
     e.preventDefault();
     const target = e.target;
     const value = target.type === "checkbox" ? target.checked : target.value;
     const name = target.name;
 
     setFormValues((oldValues) => ({ ...oldValues, [name]: value }));
-  }
-  function handleChangeProdukt(i, e) {
+  };
+  const handleChangeProdukt = (i, e) => {
     e.preventDefault();
     let newProdukty = [...formValues.produkty];
     newProdukty[i][e.target.name] = e.target.value;
@@ -72,14 +90,15 @@ function Form({ user }) {
       ...oldValues,
       produkty: newProdukty,
     }));
-  }
+  };
 
-  function addNewProdukt() {
+  const addNewProdukt = () => {
     setFormValues((oldValues) => ({
       ...oldValues,
       produkty: [
         ...oldValues.produkty,
         {
+          id: null,
           indeks: "",
           nazwa: "",
           ilosc: null,
@@ -91,70 +110,108 @@ function Form({ user }) {
         },
       ],
     }));
-  }
+  };
 
-  function removeProdukt(i) {
+  const removeProdukt = (i) => {
     let newProdukty = [...formValues.produkty];
     newProdukty.splice(i, 1);
     setFormValues((oldValues) => ({ ...oldValues, produkty: newProdukty }));
-  }
+  };
 
-  function handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    const submit = async () => {
-      setIsSubmit(true);
-      const options = {
-        method: "POST",
-        body: JSON.stringify(formValues),
-      };
-      const req = await fetch(
-        "http://10.47.8.62/eltwin_orders/api/api.php?type=postFormData",
-        options
-      );
+    if (!edit) {
+      const submit = async () => {
+        setIsSubmit(true);
+        const options = {
+          method: "POST",
+          body: JSON.stringify(formValues),
+        };
+        const req = await fetch(
+          "http://10.47.8.62/eltwin_orders/api/api.php?type=postFormData",
+          options
+        );
 
-      const res = await req.ok;
-      console.log(res);
-      if (res) {
-        setIsSubmit(false);
-        setAlert({
-          text: "Formularz został wysłany do akceptacji",
-          type: "success",
-        });
-        setFormValues({
-          rodzaj: "",
-          dzial: "",
-          cel: "",
-          firma: "",
-          kontakt_osoba: "",
-          kontakt_email: "",
-          kontakt_telefon: "",
-          produkty: [
-            {
-              indeks: "",
-              nazwa: "",
-              ilosc: null,
-              jednostka: "",
-              link: "",
-              cena: "",
-              koszt_wysylki: "",
-              uwagi: "",
-            },
-          ],
-          ordered_by: user.name + " " + user.secondname,
-          initials: user.login,
-          email: user.email,
-        });
-      } else {
-        setAlert({
-          text: "Błąd dodawania formularza, skontaktuj się z pko@eltwin.com",
-          type: "danger",
-        });
-        setIsSubmit(false);
-      }
-    };
-    submit();
-  }
+        const res = await req.ok;
+        console.log(res);
+        if (res) {
+          setIsSubmit(false);
+          setAlert({
+            text: "Formularz został wysłany do akceptacji",
+            type: "success",
+          });
+          setFormValues({
+            rodzaj: "",
+            dzial: "",
+            cel: "",
+            firma: "",
+            kontakt_osoba: "",
+            kontakt_email: "",
+            kontakt_telefon: "",
+            produkty: [
+              {
+                id: null,
+                indeks: "",
+                nazwa: "",
+                ilosc: null,
+                jednostka: "",
+                link: "",
+                cena: "",
+                koszt_wysylki: "",
+                uwagi: "",
+              },
+            ],
+            ordered_by: user.name + " " + user.secondname,
+            initials: user.login,
+            email: user.email,
+          });
+        } else {
+          setAlert({
+            text: "Błąd dodawania formularza, skontaktuj się z pko@eltwin.com",
+            type: "danger",
+          });
+          setIsSubmit(false);
+        }
+      };
+      submit();
+    } else {
+      console.log("Test edycji");
+      const update = async () => {
+        setIsSubmit(true);
+        const options = {
+          method: "POST",
+          body: JSON.stringify(formValues),
+        };
+        const req = await fetch(
+          "http://10.47.8.62/eltwin_orders/api/api.php?type=updateFormData&id=" +
+            editId +
+            "&user_modify=" +
+            user.name +
+            " " +
+            user.secondname,
+          options
+        );
+
+        const res = await req.ok;
+        console.log(res);
+        if (res) {
+          setIsSubmit(false);
+          setAlert({
+            text: "Formularz numer " + editId + " został zaktualizowany",
+            type: "success",
+          });
+        } else {
+          setAlert({
+            text: "Błąd aktualizacji formularza, skontaktuj się z pko@eltwin.com",
+            type: "danger",
+          });
+          setIsSubmit(false);
+        }
+      };
+      update();
+    }
+  };
 
   const clearAlert = () => {
     setAlert(null);
@@ -183,7 +240,10 @@ function Form({ user }) {
               </div>
             </>
           ) : null}
-          <h2 className="m-4">Formularz zamówienia</h2>
+          <h2 className="m-4">
+            Formularz zamówienia {editId ? " numer " + editId : null}
+          </h2>
+          <hr />
           <form className="formularz m-4" onSubmit={handleSubmit}>
             <h4>Informacje ogólne</h4>
             <div className="row my-4">
@@ -541,7 +601,9 @@ function Form({ user }) {
                       role="status"
                       aria-hidden="true"
                     ></span>
-                    <span className="px-3">Wysyłam formularz...</span>
+                    <span className="px-3">
+                      {edit ? "Aktualizuję" : "Wysyłam formularz"}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -560,7 +622,7 @@ function Form({ user }) {
                     type="submit"
                     className="btn btn-primary form-control"
                   >
-                    Wyślij formularz
+                    {edit ? "Aktualizuj zamówienie" : "Wyślij formularz"}
                   </button>
                 </div>
               </div>

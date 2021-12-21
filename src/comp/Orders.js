@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import OrdersBlok from "./OrdersBlok";
+import Loading from "./Loading";
+import { Link } from "react-router-dom";
 
 function Orders({ user }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -36,18 +38,7 @@ function Orders({ user }) {
   return (
     <>
       {isLoading ? (
-        <div className="text-center">
-          <div
-            className="spinner-border"
-            style={{ width: "10rem", height: "10rem", marginTop: "20vh" }}
-            role="status"
-          >
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <h1 className="mt-3" style={{ fontSize: "40px" }}>
-            Wczytuję dane...
-          </h1>
-        </div>
+        <Loading />
       ) : (
         <div className="container-fluid">
           <h2 className="m-4">Wszystkie zamówienia:</h2>
@@ -55,13 +46,19 @@ function Orders({ user }) {
           <hr />
           {orders.map((order) => {
             return (
-              <OrdersBlok
-                user={user}
-                status={order.status}
-                statusText={status[order.status]}
-                order={order}
+              <Link
+                className="link-order"
+                to={`/order/${order.id}`}
                 key={order.id}
-              />
+              >
+                <OrdersBlok
+                  user={user}
+                  status={order.status}
+                  statusText={status[order.status]}
+                  order={order}
+                  key={order.id}
+                />
+              </Link>
             );
           })}
         </div>

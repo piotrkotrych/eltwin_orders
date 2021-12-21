@@ -1,9 +1,10 @@
 import React from "react";
 
 function Dashboard({ user }) {
+  console.log(user);
   return (
     <div className="container-fluid">
-      <h2 className="m-4">Witaj {user.name}!</h2>
+      <h2 className="m-4">Witaj, {user.name}!</h2>
     </div>
   );
 }
