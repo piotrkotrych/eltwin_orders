@@ -3,23 +3,16 @@ import OrdersBlok from "./OrdersBlok";
 import Loading from "./Loading";
 import { Link } from "react-router-dom";
 
-function Orders({ user }) {
+function Orders({ user, statusy }) {
   const [isLoading, setIsLoading] = useState(true);
   const [orders, setOrders] = useState();
-  const [status] = useState([
-    "Oczekuje na akceptację",
-    "Zaakceptowane na pierwszym poziomie",
-    "Zaakceptowane, gotowe do zamówienia",
-    "Zamówione",
-    "Odebrane na magazynie",
-    "Zamówienie zakończone",
-  ]);
+  const [status] = useState(statusy);
 
   useEffect(() => {
     if (isLoading) {
       const getAllOrders = async () => {
         const get = await fetch(
-          "http://10.47.8.62/eltwin_orders/api/api.php?type=getAllOrders"
+          "http://10.47.8.28/eltwin_orders/api/api.php?type=getAllOrders"
         );
         const res = await get.json();
         setOrders(res);

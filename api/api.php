@@ -251,9 +251,25 @@ switch ($_GET['type']) {
 
   case "updateStatus":
 
-    $id = $_GET['id'];
+    $data = (array) json_decode(file_get_contents('php://input'));
 
-    
+    try {
+      if ($data['level1']) {
+        $sql = $pdo->prepare("UPDATE orders_form SET level1=?, level1user=?, level1date=now(), status=? WHERE id = ?");
+        $sql->execute([$data['level1'], $data['level1user'], $data['status'], $data['id']]);
+      }else if($data['level2']){
+        $sql = $pdo->prepare("UPDATE orders_form SET level2=?, level2user=?, level2date=now(), status=? WHERE id = ?");
+        $sql->execute([$data['level2'], $data['level2user'], $data['status'], $data['id']]);
+      }
+
+    $sql = null;
+    $query = null;
+
+    }
+
+    catch(PDOException $err){
+      exit(http_response_code( 500 ));
+    }
 
     break;
 

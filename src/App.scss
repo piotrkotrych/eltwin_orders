@@ -48,5 +48,11 @@ hr {
 }
 
 .blokKolor-0 {
-  border-color: red !important;
+  border-color: rgb(233, 8, 8) !important;
+}
+.blokKolor-1 {
+  border-color: rgb(219, 183, 62) !important;
+}
+.blokKolor-2 {
+  border-color: $primary !important;
 }

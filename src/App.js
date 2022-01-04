@@ -15,10 +15,19 @@ function App() {
     rememberForm: false,
   });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [status] = useState([
+    "Oczekuje na akceptację",
+    "Zaakceptowane na pierwszym poziomie",
+    "Zaakceptowane, gotowe do zamówienia",
+    "Zamówione",
+    "Odebrane na magazynie",
+    "Oczekiwanie na fakturę",
+    "Zamówienie odebrane",
+  ]);
 
   async function tryLogin(login, pass, remember) {
     const trylogin = await fetch(
-      "http://10.47.8.62/eltwin_orders/api/api.php?type=tryLogin&login=" +
+      "http://10.47.8.28/eltwin_orders/api/api.php?type=tryLogin&login=" +
         login +
         "&pass=" +
         pass
@@ -105,10 +114,10 @@ function App() {
                 <Form user={login} edit={true} />
               </Route>
               <Route path="/orders">
-                <Orders user={login} />
+                <Orders user={login} statusy={status} />
               </Route>
               <Route path="/order/:id">
-                <Order user={login} />
+                <Order user={login} statusy={status} />
               </Route>
             </Switch>
           </div>

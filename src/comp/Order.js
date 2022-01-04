@@ -2,18 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Loading from "./Loading";
 
-function Order({ user }) {
+function Order({ user, statusy }) {
   let { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [order, setOrder] = useState();
-  const [status] = useState([
-    "Oczekuje na akceptację",
-    "Zaakceptowane na pierwszym poziomie",
-    "Zaakceptowane, gotowe do zamówienia",
-    "Zamówione",
-    "Odebrane na magazynie",
-    "Zamówienie zakończone",
-  ]);
+  const [status] = useState(statusy);
 
   useEffect(() => {
     if (isLoading && id) {
@@ -33,6 +26,33 @@ function Order({ user }) {
     }
   });
 
+  const updateStatus = (newStatus) => {
+    console.log("Próba akceptacji samego siebie");
+    console.log(newStatus);
+    setOrder((oldOrder) => ({ ...oldOrder, status: newStatus }));
+
+    if (order) {
+      const data = {
+        id: order.id,
+        ["level" + newStatus]: 1,
+        ["level" + newStatus + "user"]: user.name + " " + user.secondname,
+        status: newStatus,
+      };
+
+      const options = { method: "POST", body: JSON.stringify(data) };
+      const update = async () => {
+        const up = await fetch(
+          "http://localhost/eltwin_orders/api/api.php?type=updateStatus",
+          options
+        );
+        const res = await up.ok;
+        console.log(res);
+      };
+
+      update();
+    }
+  };
+
   return (
     <>
       {isLoading ? (
@@ -43,21 +63,39 @@ function Order({ user }) {
           <h5 className="mx-4">Status: {status[order.status]}</h5>
           <hr />
           <div className="d-flex justify-content-start flex-wrap">
-            <Link
-              className="btn btn-secondary mx-4 my-2"
-              to={`/form/${order.id}`}
-            >
-              Edytuj zamówienie
-            </Link>
-            <button className="btn btn-primary mx-4 my-2" to="/">
-              Zaakceptuj poziom 1
-            </button>
-            <button className="btn btn-primary mx-4 my-2" to="/">
-              Zaakceptuj poziom 2
-            </button>
-            <button className="btn btn-danger mx-4 my-2" to="/">
-              Usuń zamówienie
-            </button>
+            {(user.login === order.initials && order.status < 2) ||
+            user.level > 1 ? (
+              <Link
+                className="btn btn-secondary mx-4 my-2"
+                to={`/form/${order.id}`}
+              >
+                Edytuj zamówienie
+              </Link>
+            ) : null}
+            {user.level > 1 && order.status === 0 ? (
+              <button
+                className="btn btn-primary mx-4 my-2"
+                onClick={() => updateStatus(1)}
+              >
+                Zaakceptuj poziom 1
+              </button>
+            ) : null}
+            {user.level > 2 && order.status === 1 ? (
+              <button
+                className="btn btn-primary mx-4 my-2"
+                onClick={() => updateStatus(2)}
+              >
+                Zaakceptuj poziom 2
+              </button>
+            ) : null}
+            {user.level > 2 ? (
+              <button
+                className="btn btn-danger mx-4 my-2"
+                onClick={() => console.log(order)}
+              >
+                Odrzuć zamówienie
+              </button>
+            ) : null}
           </div>
           <hr />
           <div className="row">

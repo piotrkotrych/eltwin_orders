@@ -1,10 +1,72 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import Loading from "./Loading";
 
 function Dashboard({ user }) {
-  console.log(user);
+  const [isLoading, setIsLoading] = useState(true);
+  const [orders, setOrders] = useState();
+
+  useEffect(() => {
+    if (!orders) {
+      const getAllOrders = async () => {
+        const get = await fetch(
+          "http://10.47.8.28/eltwin_orders/api/api.php?type=getAllOrders"
+        );
+        const res = await get.json();
+        let newRes = res.filter((e) => e.initials === user.login);
+        setOrders(newRes);
+        setIsLoading(false);
+      };
+      getAllOrders();
+    } else {
+      return () => {};
+    }
+  }, [orders, user.login]);
+
   return (
     <div className="container-fluid">
-      <h2 className="m-4">Witaj, {user.name}!</h2>
+      <h2 className="m-4">Elo, {user.name}!</h2>
+      <hr />
+      {!isLoading ? (
+        <div className="m-4">
+          <h3>
+            Twoja zamówienia:{" "}
+            {orders.filter((order) => order.initials === user.login).length}
+          </h3>
+          <hr />
+          <div className="row">
+            <div className="col">
+              <h4>Do akceptacji</h4>
+              {orders
+                .filter((s) => s.status === 0 && s.initials === user.login)
+                .map((order) => (
+                  <div key={order.id}>Numer: {order.id}</div>
+                ))}
+            </div>
+            <div className="col">
+              <h4>Zaakceptowane</h4>
+              {orders
+                .filter(
+                  (s) =>
+                    (s.status === 1 && s.initials === user.login) ||
+                    (s.status === 2 && s.initials === user.login)
+                )
+                .map((order) => (
+                  <div key={order.id}>Numer: {order.id}</div>
+                ))}
+            </div>
+            <div className="col">
+              <h4>Do odbioru</h4>
+              {orders
+                .filter((s) => s.status > 2 && s.initials === user.login)
+                .map((order) => (
+                  <div key={order.id}>Numer: {order.id}</div>
+                ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <Loading />
+      )}
     </div>
   );
 }
