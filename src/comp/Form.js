@@ -198,7 +198,7 @@ function Form({ user, edit }) {
           body: JSON.stringify(formValues),
         };
         const req = await fetch(
-          "http://10.47.8.28/eltwin_orders/api/api.php?type=updateFormData&id=" +
+          "http://localhost/eltwin_orders/api/api.php?type=updateFormData&id=" +
             editId +
             "&user_modify=" +
             user.name +

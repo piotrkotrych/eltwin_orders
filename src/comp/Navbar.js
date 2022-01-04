@@ -55,7 +55,12 @@ function Navbar({ user, logout }) {
           <div className="d-flex">
             <ul className="navbar-nav">
               <li className="nav-item">
-                <a href="/" className="nav-link" onClick={logout}>
+                <a
+                  href="/"
+                  className="nav-link"
+                  onClick={logout}
+                  alt="Wyloguj się"
+                >
                   Wyloguj się
                 </a>
               </li>

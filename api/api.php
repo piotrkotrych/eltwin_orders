@@ -138,17 +138,23 @@ switch ($_GET['type']) {
     // echo $id;
     // var_dump($produkty);
 
-    $query = $pdo->prepare("UPDATE orders_produkty SET indeks=?, nazwa=?, ilosc=?, jednostka=?, link=?, cena=?, koszt_wysylki=?, uwagi=? where id = ?");
+      // $pdo->exec("DELETE FROM orders_produkty WHERE form_id = '$id'");
 
+      $pdo->prepare("DELETE FROM orders_produkty WHERE form_id=?")->execute([$id]);
       foreach ($produkty as $key => $value) {
 
         if(!$produkty[$key]['koszt_wysylki'] > 0){
           $produkty[$key]['koszt_wysylki'] = 0;
         }
+
         
-        $query->execute([$produkty[$key]['indeks'], $produkty[$key]['nazwa'], $produkty[$key]['ilosc'], $produkty[$key]['jednostka'], $produkty[$key]['link'], $produkty[$key]['cena'], $produkty[$key]['koszt_wysylki'], $produkty[$key]['uwagi'], $produkty[$key]['id']]);
+        
+        $query = $pdo->prepare("INSERT INTO orders_produkty (form_id, user_added, indeks, nazwa, ilosc, jednostka, link, cena, koszt_wysylki, uwagi) values (?,?,?,?,?,?,?,?,?,?)");
+
+        $query->execute([$id, $data['initials'], $produkty[$key]['indeks'], $produkty[$key]['nazwa'], $produkty[$key]['ilosc'], $produkty[$key]['jednostka'], $produkty[$key]['link'], $produkty[$key]['cena'], $produkty[$key]['koszt_wysylki'], $produkty[$key]['uwagi']]);
 
       }
+
 
       $sql = null;
       $query = null;
@@ -156,6 +162,7 @@ switch ($_GET['type']) {
     }
 
     catch(PDOException $err){
+      echo $err->getMessage();
       exit(http_response_code( 500 ));
     }
 

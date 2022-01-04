@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Loading from "./Loading";
 
 function Dashboard({ user }) {
@@ -37,21 +38,39 @@ function Dashboard({ user }) {
             <div className="col">
               <h4>Do akceptacji</h4>
               {orders
-                .filter((s) => s.status === 0 && s.initials === user.login)
+                .filter((s) => s.status <= 1 && s.initials === user.login)
                 .map((order) => (
-                  <div key={order.id}>Numer: {order.id}</div>
+                  <Link
+                    to={`/order/${order.id}`}
+                    key={order.id}
+                    className="btn btn-primary mt-3"
+                  >
+                    <div className="row">
+                      <div className="col">
+                        Zamówienie: <b>{order.id}</b>
+                      </div>
+                    </div>
+                  </Link>
                 ))}
             </div>
             <div className="col">
               <h4>Zaakceptowane</h4>
               {orders
-                .filter(
-                  (s) =>
-                    (s.status === 1 && s.initials === user.login) ||
-                    (s.status === 2 && s.initials === user.login)
-                )
+                .filter((s) => s.status === 2 && s.initials === user.login)
                 .map((order) => (
-                  <div key={order.id}>Numer: {order.id}</div>
+                  <div key={order.id}>
+                    <Link
+                      to={`/order/${order.id}`}
+                      key={order.id}
+                      className="btn btn-primary mt-3"
+                    >
+                      <div className="row">
+                        <div className="col">
+                          Zamówienie: <b>{order.id}</b>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
                 ))}
             </div>
             <div className="col">
@@ -59,7 +78,19 @@ function Dashboard({ user }) {
               {orders
                 .filter((s) => s.status > 2 && s.initials === user.login)
                 .map((order) => (
-                  <div key={order.id}>Numer: {order.id}</div>
+                  <div key={order.id}>
+                    <Link
+                      to={`/order/${order.id}`}
+                      key={order.id}
+                      className="btn btn-primary mt-3"
+                    >
+                      <div className="row">
+                        <div className="col">
+                          Zamówienie: <b>{order.id}</b>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
                 ))}
             </div>
           </div>
