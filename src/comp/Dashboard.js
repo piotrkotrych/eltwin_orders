@@ -40,17 +40,19 @@ function Dashboard({ user }) {
               {orders
                 .filter((s) => s.status <= 1 && s.initials === user.login)
                 .map((order) => (
-                  <Link
-                    to={`/order/${order.id}`}
-                    key={order.id}
-                    className="btn btn-primary mt-3"
-                  >
-                    <div className="row">
-                      <div className="col">
-                        Zamówienie: <b>{order.id}</b>
+                  <div key={order.id}>
+                    <Link
+                      to={`/order/${order.id}`}
+                      key={order.id}
+                      className="btn btn-primary mt-3"
+                    >
+                      <div className="row">
+                        <div className="col">
+                          Zamówienie: <b>{order.id}</b>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
+                  </div>
                 ))}
             </div>
             <div className="col">

@@ -109,6 +109,8 @@ switch ($_GET['type']) {
       $sql = null;
       $query = null;
 
+      echo $id;
+
     }
 
     catch(PDOException $err){
@@ -216,6 +218,13 @@ switch ($_GET['type']) {
         $arr[$key]['produkty'] = $sql->fetchAll(PDO::FETCH_ASSOC);
       }
 
+      $sql = $pdo->prepare("SELECT * FROM orders_files WHERE form_id = ?");
+
+      foreach($arr as $key => $value){
+        $sql->execute([$arr[$key]['id']]);
+        $arr[$key]['files'] = $sql->fetchAll(PDO::FETCH_ASSOC);
+      }
+
       echo json_encode($arr);
 
       $sql = null;
@@ -277,6 +286,37 @@ switch ($_GET['type']) {
     catch(PDOException $err){
       exit(http_response_code( 500 ));
     }
+
+    break;
+
+  case 'uploadFiles':
+
+    $id = $_GET['id'];
+    $user = $_GET['user'];
+
+    if(count($_FILES) > 0){
+      foreach ($_FILES as $key => $value){
+        $filename = $id.'_'.$_FILES[$key]['name'];
+        $size = round($_FILES[$key]['size'] / 1024);
+        $type = $_FILES[$key]['type'];
+        // $date_modified = $_FILES[$key]['date_modified'];
+        if(move_uploaded_file($_FILES[$key]['tmp_name'], 'c:/wamp64/www/eltwin_orders/upload/'.$filename)){
+          echo "Dodałem plik: ".$filename;
+          try {
+            $sql = $pdo->prepare("INSERT INTO orders_files (form_id, user, filename, type, size) VALUES (?,?,?,?,?)");
+            $sql->execute([$id, $user, $filename, $type, $size]);
+          } catch (PDOException $err) {
+            exit(http_response_code( 500 ));
+            // echo "Error: " . $err->getMessage();
+          }
+          
+        }else{
+          exit(http_response_code( 500 ));
+        }
+      }
+    }
+
+    
 
     break;
 

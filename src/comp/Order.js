@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Loading from "./Loading";
+import ManageFiles from "./ManageFiles";
 
 function Order({ user, statusy }) {
   let { id } = useParams();
@@ -64,7 +65,7 @@ function Order({ user, statusy }) {
           <hr />
           <div className="d-flex justify-content-start flex-wrap">
             {(user.login === order.initials && order.status < 2) ||
-            user.level > 1 ? (
+            (user.level > 2 && order.status < 2) ? (
               <Link
                 className="btn btn-secondary mx-4 my-2"
                 to={`/form/${order.id}`}
@@ -185,6 +186,9 @@ function Order({ user, statusy }) {
             </div>
             <div className="col-md mx-4"></div>
           </div>
+          <hr />
+          <ManageFiles user={user} order={order} />
+          <hr />
           <div className="row">
             <div className="col-md m-4">
               <h4>Produkty</h4>

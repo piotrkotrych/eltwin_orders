@@ -1,24 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import NoAccess from "./NoAccess";
 
 function Form({ user, edit }) {
-  let { editId } = useParams();
-  const [isLoading, setIsLoading] = useState(true);
-  const [noAccess, setNoAccess] = useState(false);
-  const [isSubmit, setIsSubmit] = useState(false);
-  const [alert, setAlert] = useState(null);
-  const [rodzaje, setRodzaje] = useState();
-  const [jednostki] = useState([
-    "sztuki",
-    "metry",
-    "centymetry",
-    "kilogramy",
-    "gram",
-    "litry",
-    "mililitry",
-  ]);
-  const [formValues, setFormValues] = useState({
+  let emptyForm = {
     rodzaj: "",
     dzial: "",
     cel: "",
@@ -39,10 +24,28 @@ function Form({ user, edit }) {
         uwagi: "",
       },
     ],
+    files: null,
     ordered_by: user.name + " " + user.secondname,
     initials: user.login,
     email: user.email,
-  });
+  };
+  let { editId } = useParams();
+  const [isLoading, setIsLoading] = useState(true);
+  const [noAccess, setNoAccess] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState();
+  const [isSubmit, setIsSubmit] = useState(false);
+  const [alert, setAlert] = useState(null);
+  const [rodzaje, setRodzaje] = useState();
+  const [jednostki] = useState([
+    "sztuki",
+    "metry",
+    "centymetry",
+    "kilogramy",
+    "gram",
+    "litry",
+    "mililitry",
+  ]);
+  const [formValues, setFormValues] = useState(emptyForm);
 
   useEffect(() => {
     if (isLoading) {
@@ -63,7 +66,7 @@ function Form({ user, edit }) {
             console.log(res[0]);
             if (
               (res[0].status < 2 && user.login === res[0].initials) ||
-              (res[0].status < 2 && user.level > 1)
+              (res[0].status < 2 && user.level > 2)
             ) {
               setFormValues(res[0]);
               setIsLoading(false);
@@ -132,12 +135,23 @@ function Form({ user, edit }) {
     setFormValues((oldValues) => ({ ...oldValues, produkty: newProdukty }));
   };
 
+  const handleFileChange = (e) => {
+    setSelectedFiles(e.target.files);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!edit) {
       const submit = async () => {
         setIsSubmit(true);
+
+        const formData = new FormData();
+
+        for (let i = 0; i < selectedFiles.length; i++) {
+          formData.append("file" + (i + 1), selectedFiles[i]);
+        }
+
         const options = {
           method: "POST",
           body: JSON.stringify(formValues),
@@ -147,44 +161,57 @@ function Form({ user, edit }) {
           options
         );
 
-        const res = await req.ok;
+        const res = await req.json();
         console.log(res);
         if (res) {
-          setIsSubmit(false);
-          setAlert({
-            text: "Formularz został wysłany do akceptacji",
-            type: "success",
-          });
-          setFormValues({
-            rodzaj: "",
-            dzial: "",
-            cel: "",
-            firma: "",
-            kontakt_osoba: "",
-            kontakt_email: "",
-            kontakt_telefon: "",
-            produkty: [
-              {
-                id: null,
-                indeks: "",
-                nazwa: "",
-                ilosc: null,
-                jednostka: "",
-                link: "",
-                cena: "",
-                koszt_wysylki: "",
-                uwagi: "",
-              },
-            ],
-            ordered_by: user.name + " " + user.secondname,
-            initials: user.login,
-            email: user.email,
-          });
+          let id = res;
+
+          const options = { method: "POST", body: formData };
+
+          const req = await fetch(
+            "http://localhost/eltwin_orders/api/api.php?type=uploadFiles&id=" +
+              id +
+              "&user=" +
+              user.login,
+            options
+          );
+
+          const response = await req.ok;
+
+          console.log(response);
+
+          if (response) {
+            setIsSubmit(false);
+            setSelectedFiles();
+            let fileinput = document.querySelector("#fileinput");
+
+            fileinput.value = null;
+
+            setAlert({
+              text: "Formularz został wysłany do akceptacji, możesz do niego przejść klikając",
+              type: "success",
+              link: "/order/" + id + "",
+            });
+            setFormValues(emptyForm);
+          } else {
+            setAlert({
+              text: "Błąd dodawania plików, skontaktuj się z pko@eltwin.com",
+              type: "danger",
+            });
+            setSelectedFiles();
+            let fileinput = document.querySelector("#fileinput");
+
+            fileinput.value = null;
+
+            setFormValues(emptyForm);
+            setIsSubmit(false);
+          }
         } else {
           setAlert({
             text: "Błąd dodawania formularza, skontaktuj się z pko@eltwin.com",
             type: "danger",
           });
+          setSelectedFiles();
           setIsSubmit(false);
         }
       };
@@ -244,6 +271,12 @@ function Form({ user, edit }) {
                 role="alert"
               >
                 {alert.text}
+                {alert.link ? (
+                  <>
+                    {" "}
+                    <Link to={alert.link}>TU</Link>
+                  </>
+                ) : null}
                 <button
                   type="button"
                   className="btn-close"
@@ -260,7 +293,11 @@ function Form({ user, edit }) {
                 Formularz zamówienia {editId ? " numer " + editId : null}
               </h2>
               <hr />
-              <form className="formularz m-4" onSubmit={handleSubmit}>
+              <form
+                className="formularz m-4"
+                onSubmit={handleSubmit}
+                encType="multipart/form-data"
+              >
                 <h4>Informacje ogólne</h4>
                 <div className="row my-4">
                   <div className="col-md">
@@ -427,6 +464,59 @@ function Form({ user, edit }) {
                     </div>
                   </div>
                 </div>
+                <hr />
+                {!editId ? (
+                  <>
+                    <div className="row">
+                      <div className="col-md-2">
+                        <h4 className="mb-4">Dodaj pliki</h4>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-md-4">
+                        <input
+                          type="file"
+                          name="oferta"
+                          multiple
+                          className="form-control"
+                          id="fileinput"
+                          onChange={handleFileChange}
+                        />
+                      </div>
+                      {selectedFiles ? (
+                        <table className="table my-4">
+                          <thead>
+                            <tr>
+                              <th>Nazwa pliku</th>
+                              <th>Rozmiar</th>
+                              <th>Typ</th>
+                              <th>Ostatnio modyfikowany</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {selectedFiles
+                              ? console.log(selectedFiles[0])
+                              : console.log("nie ma nic")}
+                            {[...selectedFiles].map((file) => {
+                              return (
+                                <tr key={file.name}>
+                                  <td>{file.name}</td>
+                                  <td>{Math.round(file.size / 1024, 1)} kB</td>
+                                  <td>{file.type}</td>
+                                  <td>
+                                    {file.lastModifiedDate.toLocaleDateString()}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      ) : null}
+                    </div>
+                    <hr />
+                  </>
+                ) : null}
+
                 <h4 className="my-4">Zamawiane produkty</h4>
                 {formValues.produkty.map((e, index) => {
                   return (
