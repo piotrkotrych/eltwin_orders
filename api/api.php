@@ -293,30 +293,68 @@ switch ($_GET['type']) {
 
     $id = $_GET['id'];
     $user = $_GET['user'];
+    $time = date("Y-m-d h:i:s");
+
+    $addedFiles = array();
 
     if(count($_FILES) > 0){
       foreach ($_FILES as $key => $value){
         $filename = $id.'_'.$_FILES[$key]['name'];
         $size = round($_FILES[$key]['size'] / 1024);
         $type = $_FILES[$key]['type'];
+        
         // $date_modified = $_FILES[$key]['date_modified'];
         if(move_uploaded_file($_FILES[$key]['tmp_name'], 'c:/wamp64/www/eltwin_orders/upload/'.$filename)){
-          echo "Dodałem plik: ".$filename;
           try {
             $sql = $pdo->prepare("INSERT INTO orders_files (form_id, user, filename, type, size) VALUES (?,?,?,?,?)");
             $sql->execute([$id, $user, $filename, $type, $size]);
+            $sql = null;
+
+            $addedFiles[$key]['id'] = $pdo->lastInsertId();
+            $addedFiles[$key]['user'] = $user;
+            $addedFiles[$key]['type'] = $type;
+            $addedFiles[$key]['size'] = $size;
+            $addedFiles[$key]['filename'] = $filename;
+            $addedFiles[$key]['date_added'] = $time;
+            
           } catch (PDOException $err) {
-            exit(http_response_code( 500 ));
-            // echo "Error: " . $err->getMessage();
+            // exit(http_response_code( 500 ));
+            echo "Error: " . $err->getMessage();
           }
           
         }else{
+          exit(http_response_code( 500 ));
+        }
+
+        if(count($addedFiles) > 0){
+          echo json_encode($addedFiles);
+        }else {
           exit(http_response_code( 500 ));
         }
       }
     }
 
     
+
+    break;
+
+  case 'deleteFile':
+
+    $data = (array) json_decode(file_get_contents('php://input'));
+
+    // var_dump($data);
+
+    try {
+      $sql = $pdo->prepare("DELETE FROM orders_files WHERE id = ?");
+      $sql->execute([$data['id']]);
+      $sql = null;
+      if(unlink('c:/wamp64/www/eltwin_orders/upload/'.$data['name'])){
+        exit(http_response_code( 200 ));
+      }
+    } catch (PDOException $e) {
+      exit(http_response_code( 500 ));
+      // echo 'Error: ' . $e->getMessage();
+    }
 
     break;
 
