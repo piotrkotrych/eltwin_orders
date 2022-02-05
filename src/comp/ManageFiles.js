@@ -18,6 +18,7 @@ function ManageFiles({ user, order }) {
         method: "POST",
         body: JSON.stringify({
           id: deleteFile.id,
+          form_id: order.id,
           name: deleteFile.filename,
           user: user.login,
         }),
@@ -66,7 +67,7 @@ function ManageFiles({ user, order }) {
 
       setAddFile();
     } else {
-      console.log("Wybierz plik");
+      alert("Wybierz plik...");
     }
   };
 

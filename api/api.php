@@ -27,6 +27,19 @@ try {
 }
 
 
+function addLog($form_id, $message, $user){
+  try {
+    global $pdo;
+    global $dsn;
+    global $options;
+    $sql = $pdo->prepare("INSERT INTO orders_log (form_id, message, user) values (?,?,?)")->execute([$form_id, $message, $user]);
+    // $pdo->execute();
+  } catch (\Throwable $th) {
+    echo $th->getMessage();
+  }
+}
+
+
 
 switch ($_GET['type']) {
 
@@ -109,6 +122,8 @@ switch ($_GET['type']) {
       $sql = null;
       $query = null;
 
+      addLog($id, "Utworzono nowe zamówienie", $data['initials']);
+
       echo $id;
 
     }
@@ -160,6 +175,8 @@ switch ($_GET['type']) {
 
       $sql = null;
       $query = null;
+
+      addLog($id, "Aktualizacja zamówienia", $data['initials']);
 
     }
 
@@ -273,9 +290,13 @@ switch ($_GET['type']) {
       if ($data['level1']) {
         $sql = $pdo->prepare("UPDATE orders_form SET level1=?, level1user=?, level1date=now(), status=? WHERE id = ?");
         $sql->execute([$data['level1'], $data['level1user'], $data['status'], $data['id']]);
+
+        addLog($data['id'], "Zaakceptowano na pierwszym poziomie", $data['level1user']);
       }else if($data['level2']){
         $sql = $pdo->prepare("UPDATE orders_form SET level2=?, level2user=?, level2date=now(), status=? WHERE id = ?");
         $sql->execute([$data['level2'], $data['level2user'], $data['status'], $data['id']]);
+
+        addLog($data['id'], "Zaakceptowano na drugim poziomie", $data['level2user']);
       }
 
     $sql = null;
@@ -316,6 +337,8 @@ switch ($_GET['type']) {
             $addedFiles[$key]['size'] = $size;
             $addedFiles[$key]['filename'] = $filename;
             $addedFiles[$key]['date_added'] = $time;
+
+            addLog($id, "Dodano plik ".$filename, $user);
             
           } catch (PDOException $err) {
             // exit(http_response_code( 500 ));
@@ -349,6 +372,7 @@ switch ($_GET['type']) {
       $sql->execute([$data['id']]);
       $sql = null;
       if(unlink('c:/wamp64/www/eltwin_orders/upload/'.$data['name'])){
+        addLog($data['form_id'], "Skasowano plik ".$data['name'], $data['user']);
         exit(http_response_code( 200 ));
       }
     } catch (PDOException $e) {

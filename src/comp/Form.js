@@ -239,8 +239,12 @@ function Form({ user, edit }) {
         if (res) {
           setIsSubmit(false);
           setAlert({
-            text: "Formularz numer " + editId + " został zaktualizowany",
+            text:
+              "Formularz numer " +
+              editId +
+              " został zaktualizowany, przejdź do zamówienia klikając",
             type: "success",
+            link: "/order/" + editId + "",
           });
         } else {
           setAlert({
