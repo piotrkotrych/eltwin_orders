@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import Loading from "./Loading";
 import ManageFiles from "./ManageFiles";
 import OrderLog from "./OrderLog";
+import ManageFaktury from "./ManageFaktury";
 
 function Order({ user, statusy }) {
   let { id } = useParams();
@@ -39,6 +40,7 @@ function Order({ user, statusy }) {
         ["level" + newStatus]: 1,
         ["level" + newStatus + "user"]: user.name + " " + user.secondname,
         status: newStatus,
+        user: user.login,
       };
 
       const options = { method: "POST", body: JSON.stringify(data) };
@@ -194,6 +196,11 @@ function Order({ user, statusy }) {
               <ManageFiles user={user} order={order} />
               <hr />
             </>
+          ) : null}
+
+          {(order.status >= 1 && user.login === order.initials) ||
+          (order.status >= 1 && user.level > 1) ? (
+            <ManageFaktury />
           ) : null}
 
           <div className="row">

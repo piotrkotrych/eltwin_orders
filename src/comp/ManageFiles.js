@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Modal } from "bootstrap";
+import { showModal, hideModal } from "../func/ModalToggle";
 
 function ManageFiles({ user, order }) {
   const modalRef = useRef();
@@ -29,7 +29,7 @@ function ManageFiles({ user, order }) {
 
     if (response) {
       setDeleteFile({});
-      hideModal();
+      hideModal(modalRef);
     }
   };
 
@@ -69,21 +69,6 @@ function ManageFiles({ user, order }) {
     } else {
       alert("Wybierz plik...");
     }
-  };
-
-  const showModal = () => {
-    const modalEle = modalRef.current;
-    const bsModal = new Modal(modalEle, {
-      backdrop: "static",
-      keyboard: false,
-    });
-    bsModal.show();
-  };
-
-  const hideModal = () => {
-    const modalEle = modalRef.current;
-    const bsModal = Modal.getInstance(modalEle);
-    bsModal.hide();
   };
 
   return (
@@ -132,7 +117,7 @@ function ManageFiles({ user, order }) {
                       className="btn btn-danger"
                       onClick={() => {
                         setDeleteFile(file);
-                        showModal();
+                        showModal(modalRef);
                       }}
                     >
                       Usuń plik
@@ -178,7 +163,10 @@ function ManageFiles({ user, order }) {
                 <button className="btn btn-primary" onClick={confirmDelete}>
                   Tak, usuń plik
                 </button>
-                <button className="btn btn-danger" onClick={hideModal}>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => hideModal(modalRef)}
+                >
                   Nie, nie chcę usuwać pliku
                 </button>
               </div>

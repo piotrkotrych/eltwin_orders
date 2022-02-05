@@ -1,23 +1,14 @@
 import React, { useRef } from "react";
-import { Modal } from "bootstrap";
+import { showModal, hideModal } from "../func/ModalToggle";
 
 function OrderLog({ user, order }) {
   const modalRef = useRef();
-
-  const showModal = () => {
-    const modalEle = modalRef.current;
-    const bsModal = new Modal(modalEle);
-    bsModal.show();
-  };
-
-  const hideModal = () => {
-    const modalEle = modalRef.current;
-    const bsModal = Modal.getInstance(modalEle);
-    bsModal.hide();
-  };
   return (
     <div>
-      <button className="btn btn-primary mx-4 my-2" onClick={showModal}>
+      <button
+        className="btn btn-primary mx-4 my-2"
+        onClick={() => showModal(modalRef)}
+      >
         Historia zamówienia
       </button>
 
@@ -42,7 +33,10 @@ function OrderLog({ user, order }) {
               })}
             </div>
             <div className="modal-footer">
-              <button className="btn btn-danger" onClick={hideModal}>
+              <button
+                className="btn btn-danger"
+                onClick={() => hideModal(modalRef)}
+              >
                 Zamknij
               </button>
             </div>

@@ -298,12 +298,12 @@ switch ($_GET['type']) {
         $sql = $pdo->prepare("UPDATE orders_form SET level1=?, level1user=?, level1date=now(), status=? WHERE id = ?");
         $sql->execute([$data['level1'], $data['level1user'], $data['status'], $data['id']]);
 
-        addLog($data['id'], "Zaakceptowano na pierwszym poziomie", $data['level1user']);
+        addLog($data['id'], "Zaakceptowano na pierwszym poziomie", $data['user']);
       }else if($data['level2']){
         $sql = $pdo->prepare("UPDATE orders_form SET level2=?, level2user=?, level2date=now(), status=? WHERE id = ?");
         $sql->execute([$data['level2'], $data['level2user'], $data['status'], $data['id']]);
 
-        addLog($data['id'], "Zaakceptowano na drugim poziomie", $data['level2user']);
+        addLog($data['id'], "Zaakceptowano na drugim poziomie", $data['user']);
       }
 
     $sql = null;
