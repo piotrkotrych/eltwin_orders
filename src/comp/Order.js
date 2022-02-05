@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Loading from "./Loading";
 import ManageFiles from "./ManageFiles";
+import OrderLog from "./OrderLog";
 
 function Order({ user, statusy }) {
   let { id } = useParams();
@@ -62,6 +63,7 @@ function Order({ user, statusy }) {
         <div className="container-fluid">
           <h2 className="m-4">Zamówienie numer {id}</h2>
           <h5 className="mx-4">Status: {status[order.status]}</h5>
+          {order.log ? <OrderLog order={order} user={user} /> : null}
           <hr />
           <div className="d-flex justify-content-start flex-wrap">
             {(user.login === order.initials && order.status < 2) ||
@@ -187,8 +189,13 @@ function Order({ user, statusy }) {
             <div className="col-md mx-4"></div>
           </div>
           <hr />
-          <ManageFiles user={user} order={order} />
-          <hr />
+          {user.level > 1 || user.login === order.initials ? (
+            <>
+              <ManageFiles user={user} order={order} />
+              <hr />
+            </>
+          ) : null}
+
           <div className="row">
             <div className="col-md m-4">
               <h4>Produkty</h4>

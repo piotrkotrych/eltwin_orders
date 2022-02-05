@@ -242,6 +242,13 @@ switch ($_GET['type']) {
         $arr[$key]['files'] = $sql->fetchAll(PDO::FETCH_ASSOC);
       }
 
+      $sql = $pdo->prepare("SELECT * FROM orders_log WHERE form_id = ? order by date_added desc");
+
+      foreach($arr as $key => $value){
+        $sql->execute([$arr[$key]['id']]);
+        $arr[$key]['log'] = $sql->fetchAll(PDO::FETCH_ASSOC);
+      }
+
       echo json_encode($arr);
 
       $sql = null;
