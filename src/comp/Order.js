@@ -63,7 +63,7 @@ function Order({ user, statusy }) {
         <div className="container-fluid">
           <h2 className="m-4">Zamówienie numer {id}</h2>
           <h5 className="mx-4">Status: {status[order.status]}</h5>
-          {order.log ? <OrderLog order={order} user={user} /> : null}
+          {order.log.length > 0 ? <OrderLog order={order} user={user} /> : null}
           <hr />
           <div className="d-flex justify-content-start flex-wrap">
             {(user.login === order.initials && order.status < 2) ||
