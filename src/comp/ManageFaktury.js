@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { showModal, hideModal } from "../func/ModalToggle";
 
-function ManageFaktury() {
+function ManageFaktury({ user, order }) {
   const modalRef = useRef();
 
   return (
@@ -12,20 +12,22 @@ function ManageFaktury() {
         </div>
       </div>
       <div className="mx-4">
-        <table className="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Nazwa pliku</th>
-              <th scope="col">Rozmiar pliku</th>
-              <th scope="col">Typ pliku</th>
-              <th scope="col">Data dodania</th>
-              <th scope="col">Dodał</th>
-              <th scope="col">Podgląd</th>
-              <th scope="col">Usuń plik</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+        {order.files.length > 0 ? (
+          <table className="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Nazwa pliku</th>
+                <th scope="col">Rozmiar pliku</th>
+                <th scope="col">Typ pliku</th>
+                <th scope="col">Data dodania</th>
+                <th scope="col">Dodał</th>
+                <th scope="col">Podgląd</th>
+                <th scope="col">Usuń plik</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        ) : null}
 
         <div className="row my-4">
           <div className="col-md-2">
@@ -57,6 +59,7 @@ function ManageFaktury() {
           </div>
         </div>
       </div>
+      <hr />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import Loading from "./Loading";
 import ManageFiles from "./ManageFiles";
 import OrderLog from "./OrderLog";
 import ManageFaktury from "./ManageFaktury";
+import OrderProdukty from "./OrderProdukty";
 
 function Order({ user, statusy }) {
   let { id } = useParams();
@@ -192,64 +193,15 @@ function Order({ user, statusy }) {
           </div>
           <hr />
           {user.level > 1 || user.login === order.initials ? (
-            <>
-              <ManageFiles user={user} order={order} />
-              <hr />
-            </>
+            <ManageFiles user={user} order={order} />
           ) : null}
 
-          {(order.status >= 1 && user.login === order.initials) ||
-          (order.status >= 1 && user.level > 1) ? (
-            <ManageFaktury />
+          {(order.status > 1 && user.login === order.initials) ||
+          (order.status > 1 && user.level > 1) ? (
+            <ManageFaktury user={user} order={order} />
           ) : null}
 
-          <div className="row">
-            <div className="col-md m-4">
-              <h4>Produkty</h4>
-            </div>
-          </div>
-          <div className="mx-4">
-            <table className="table table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Indeks</th>
-                  <th scope="col">Nazwa</th>
-                  <th scope="col">Ilość</th>
-                  <th scope="col">Cena</th>
-                  <th scope="col">Koszty wysyłki</th>
-                  <th scope="col">Link</th>
-                </tr>
-              </thead>
-              <tbody>
-                {order.produkty.map((e, index) => {
-                  return (
-                    <tr key={e.id}>
-                      <th scope="row">{index + 1}</th>
-                      <td>{e.indeks}</td>
-                      <td>{e.nazwa}</td>
-                      <td>
-                        {e.ilosc} {e.jednostka}
-                      </td>
-                      <td>{e.cena} zł</td>
-                      <td>{e.koszt_wysylki} zł</td>
-                      <td>
-                        <a href={e.link} target="_blank" rel="noreferrer">
-                          Link do strony
-                        </a>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          <div className="m-4">
-            <h4>
-              Razem: {order.produkty.reduce((a, b) => a + b.cena, 0)} zł +{" "}
-              {order.produkty.reduce((a, b) => a + b.koszt_wysylki, 0)} ZŁ
-            </h4>
-          </div>
+          <OrderProdukty user={user} order={order} />
         </div>
       )}
     </>

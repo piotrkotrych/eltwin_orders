@@ -78,56 +78,67 @@ function ManageFiles({ user, order }) {
           <h4>Zarządzaj plikami</h4>
         </div>
       </div>
+
       <div className="mx-4">
-        <table className="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Nazwa pliku</th>
-              <th scope="col">Rozmiar pliku</th>
-              <th scope="col">Typ pliku</th>
-              <th scope="col">Data dodania</th>
-              <th scope="col">Dodał</th>
-              <th scope="col">Podgląd</th>
-              <th scope="col">Usuń plik</th>
-            </tr>
-          </thead>
-          <tbody>
-            {order.files.map((file) => {
-              return (
-                <tr key={file.id}>
-                  <td>{file.filename}</td>
-                  <td>{file.size} kB</td>
-                  <td>{file.type}</td>
-                  <td>{file.date_added}</td>
-                  <td>{file.user}</td>
-                  <td>
-                    <Link
-                      to={{
-                        pathname:
-                          "http://localhost/eltwin_orders/upload/" +
-                          file.filename,
-                      }}
-                      target="_blank"
-                    >
-                      Pokaż
-                    </Link>
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-danger"
-                      onClick={() => {
-                        setDeleteFile(file);
-                        showModal(modalRef);
-                      }}
-                    >
-                      Usuń plik
-                    </button>
-                  </td>
+        {order.files.length > 0 ? (
+          <>
+            <table className="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Nazwa pliku</th>
+                  <th scope="col">Rozmiar pliku</th>
+                  <th scope="col">Typ pliku</th>
+                  <th scope="col">Data dodania</th>
+                  <th scope="col">Dodał</th>
+                  <th scope="col">Podgląd</th>
+                  {(order.status > 1 && user.login === order.initials) ||
+                  (order.status > 1 && user.level > 1) ? (
+                    <th scope="col">Usuń plik</th>
+                  ) : null}
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {order.files.map((file) => {
+                  return (
+                    <tr key={file.id}>
+                      <td>{file.filename}</td>
+                      <td>{file.size} kB</td>
+                      <td>{file.type}</td>
+                      <td>{file.date_added}</td>
+                      <td>{file.user}</td>
+                      <td>
+                        <Link
+                          to={{
+                            pathname:
+                              "http://localhost/eltwin_orders/upload/" +
+                              file.filename,
+                          }}
+                          target="_blank"
+                        >
+                          Pokaż
+                        </Link>
+                      </td>
+                      {(order.status > 1 && user.login === order.initials) ||
+                      (order.status > 1 && user.level > 1) ? (
+                        <td>
+                          <button
+                            className="btn btn-danger"
+                            onClick={() => {
+                              setDeleteFile(file);
+                              showModal(modalRef);
+                            }}
+                          >
+                            Usuń plik
+                          </button>
+                        </td>
+                      ) : null}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </>
+        ) : null}
 
         <div className="row my-4">
           <div className="col-md-2">
@@ -174,6 +185,7 @@ function ManageFiles({ user, order }) {
           </div>
         </div>
       </div>
+      <hr />
     </>
   );
 }
