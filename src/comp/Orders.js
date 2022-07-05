@@ -99,55 +99,59 @@ function Orders({ user, statusy }) {
       <div className="container-fluid">
         <h2 className="m-4">Wszystkie zamówienia: {orders.length}</h2>
         <hr />
-        <table {...getTableProps()} className="table">
-          <thead>
-            {headerGroups.map((headerGroup) => (
-              <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column) => (
-                  <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                    {column.render("Header")}
-                    <span>
-                      {column.isSorted ? (
-                        column.isSortedDesc ? (
-                          <span> &#8595;</span>
+        <div className="row m-3">
+          <table {...getTableProps()} className="table">
+            <thead>
+              {headerGroups.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column) => (
+                    <th
+                      {...column.getHeaderProps(column.getSortByToggleProps())}
+                    >
+                      {column.render("Header")}
+                      <span>
+                        {column.isSorted ? (
+                          column.isSortedDesc ? (
+                            <span> &#8595;</span>
+                          ) : (
+                            <span> &#8593;</span>
+                          )
                         ) : (
-                          <span> &#8593;</span>
-                        )
-                      ) : (
-                        " "
-                      )}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            ))}
-            <tr>
-              <th colSpan={visibleColumns.length}>
-                <GlobalFilter
-                  preGlobalFilteredRows={page}
-                  globalFilter={state.globalFilter}
-                  setGlobalFilter={setGlobalFilter}
-                />
-              </th>
-            </tr>
-          </thead>
-          <tbody {...getTableBodyProps()}>
-            {page.map((row, i) => {
-              prepareRow(row);
-              return (
-                <tr {...row.getRowProps()}>
-                  {row.cells.map((cell) => {
-                    return (
-                      <td {...cell.getCellProps()} className="align-middle">
-                        {cell.render("Cell")}
-                      </td>
-                    );
-                  })}
+                          " "
+                        )}
+                      </span>
+                    </th>
+                  ))}
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              ))}
+              <tr>
+                <th colSpan={visibleColumns.length}>
+                  <GlobalFilter
+                    preGlobalFilteredRows={page}
+                    globalFilter={state.globalFilter}
+                    setGlobalFilter={setGlobalFilter}
+                  />
+                </th>
+              </tr>
+            </thead>
+            <tbody {...getTableBodyProps()}>
+              {page.map((row, i) => {
+                prepareRow(row);
+                return (
+                  <tr {...row.getRowProps()}>
+                    {row.cells.map((cell) => {
+                      return (
+                        <td {...cell.getCellProps()} className="align-middle">
+                          {cell.render("Cell")}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
 
         <nav className="text-center">
           <ul className="pagination justify-content-center">
