@@ -1,15 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CompanyAdd from "./CompanyAdd";
 
-function Company() {
+function Company({ user }) {
   const [isLoading, setIsLoading] = useState(false);
   const [companys, setCompanys] = useState([]);
 
+  useEffect(() => {
+    setIsLoading(true);
+    console.log(user);
+    setIsLoading(false);
+  }, []);
+
   return (
     <div className="container-fluid">
-      <h2 className="m-4">Lista dostawców</h2>
-      <hr />
-      <CompanyAdd></CompanyAdd>
+      {!isLoading ? (
+        <>
+          <h2 className="m-4">Lista dostawców</h2>
+          <hr />
+          {user.level >= 3 ? <CompanyAdd></CompanyAdd> : null}
+        </>
+      ) : null}
     </div>
   );
 }

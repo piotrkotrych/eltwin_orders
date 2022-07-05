@@ -1,12 +1,13 @@
 import React from "react";
 
-function CompanyAdd({ update }) {
+function CompanyAdd() {
   return (
-    <div>
-      <button className="btn btn-primary" onClick={() => update("klop")}>
-        Set state
-      </button>
-    </div>
+    <>
+      <h4 className="m-4">Dodaj firmę:</h4>
+      <div className="row m-4">
+        <form action=""></form>
+      </div>
+    </>
   );
 }
 
