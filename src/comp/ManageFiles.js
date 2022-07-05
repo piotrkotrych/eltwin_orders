@@ -21,6 +21,7 @@ function ManageFiles({ user, order }) {
           form_id: order.id,
           name: deleteFile.filename,
           user: user.login,
+          table: "orders_files",
         }),
       }
     );
@@ -91,8 +92,7 @@ function ManageFiles({ user, order }) {
                   <th scope="col">Data dodania</th>
                   <th scope="col">Dodał</th>
                   <th scope="col">Podgląd</th>
-                  {(order.status > 1 && user.login === order.initials) ||
-                  (order.status > 1 && user.level > 1) ? (
+                  {user.login === order.initials || user.level > 1 ? (
                     <th scope="col">Usuń plik</th>
                   ) : null}
                 </tr>
@@ -118,8 +118,7 @@ function ManageFiles({ user, order }) {
                           Pokaż
                         </Link>
                       </td>
-                      {(order.status > 1 && user.login === order.initials) ||
-                      (order.status > 1 && user.level > 1) ? (
+                      {user.login === order.initials || user.level > 1 ? (
                         <td>
                           <button
                             className="btn btn-danger"

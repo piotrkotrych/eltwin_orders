@@ -37,14 +37,7 @@ hr {
 }
 
 .blok {
-  border-left: $primary 5px solid;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
-  transition: ease-in 0.1s;
-}
-
-.blok:hover {
-  box-shadow: 0 0.3rem 0.5rem rgba(0, 0, 0, 0.15) !important;
-  cursor: pointer;
+  border-bottom: $primary 2px solid;
 }
 
 .blokKolor-0 {

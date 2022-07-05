@@ -47,13 +47,57 @@ function Navbar({ user, logout }) {
             </li>
 
             <li className="nav-item">
-              <NavLink activeClassName="active" to="/" className="nav-link">
+              <NavLink
+                activeClassName="active"
+                to="/cyclical"
+                className="nav-link"
+              >
+                Cykliczne
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink
+                activeClassName="active"
+                to="/confirm"
+                className="nav-link"
+              >
                 Zatwierdzenia
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink activeClassName="active" to="/" className="nav-link">
+              <NavLink
+                activeClassName="active"
+                to="/payments"
+                className="nav-link"
+              >
+                Płatności
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink
+                activeClassName="active"
+                to="/recieve"
+                className="nav-link"
+              >
+                Odbiór
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink
+                activeClassName="active"
+                to="/company"
+                className="nav-link"
+              >
                 Dostawcy
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink
+                activeClassName="active"
+                to="/users"
+                className="nav-link"
+              >
+                Użytkownicy
               </NavLink>
             </li>
           </ul>

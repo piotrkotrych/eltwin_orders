@@ -46,8 +46,23 @@ function OrderProdukty({ user, order }) {
       </div>
       <div className="m-4">
         <h4>
-          Razem: {order.produkty.reduce((a, b) => a + b.cena, 0)} zł +{" "}
-          {order.produkty.reduce((a, b) => a + b.koszt_wysylki, 0)} ZŁ
+          {/* Razem: {order.produkty.reduce((a, b) => a + b.cena, 0)} {order.waluta}{" "}
+          + {order.produkty.reduce((a, b) => a + b.koszt_wysylki, 0)}{" "}
+          {order.waluta} */}
+          {/* map produkty and sum cena times ilosc */}
+          Razem:{" "}
+          {order.produkty
+            .reduce(
+              (a, b) =>
+                parseFloat(a) + parseFloat(b.cena) * parseFloat(b.ilosc),
+              0
+            )
+            .toFixed(2)}{" "}
+          {order.waluta}+{" "}
+          {order.produkty
+            .reduce((a, b) => parseFloat(a) + parseFloat(b.koszt_wysylki), 0)
+            .toFixed(2)}{" "}
+          {order.waluta}
         </h4>
       </div>
     </div>

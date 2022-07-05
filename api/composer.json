@@ -1,0 +1,6 @@
+{
+    "require": {
+        "halaxa/json-machine": "^1.0",
+        "smalot/pdfparser": "^2.1"
+    }
+}

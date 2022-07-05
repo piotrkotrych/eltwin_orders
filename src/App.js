@@ -6,8 +6,16 @@ import Dashboard from "./comp/Dashboard";
 import Form from "./comp/Form";
 import Orders from "./comp/Orders";
 import Order from "./comp/Order";
+import Loading from "./comp/Loading";
+import Confirm from "./comp/Confirm";
+import Cyclical from "./comp/Cyclical";
+import Company from "./comp/Company";
+import Payment from "./comp/Payment";
+import Recieve from "./comp/Recieve";
+import User from "./comp/User";
 
 function App() {
+  const [isLoading, setIsLoading] = useState(false);
   const [login, setLogin] = useState({});
   const [loginForm, setLoginForm] = useState({
     loginForm: "",
@@ -15,6 +23,8 @@ function App() {
     rememberForm: false,
   });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [orders, setOrders] = useState();
+  const [userOrders, setUserOrders] = useState();
   const [status] = useState([
     "Oczekuje na akceptację",
     "Zaakceptowane na pierwszym poziomie",
@@ -26,8 +36,9 @@ function App() {
   ]);
 
   async function tryLogin(login, pass, remember) {
+    setIsLoading(true);
     const trylogin = await fetch(
-      "http://10.47.8.28/eltwin_orders/api/api.php?type=tryLogin&login=" +
+      "http://127.0.0.1/eltwin_orders/api/api.php?type=tryLogin&login=" +
         login +
         "&pass=" +
         pass
@@ -36,6 +47,7 @@ function App() {
     if (response) {
       setLogin(response);
       setIsLoggedIn(true);
+      setIsLoading(false);
       if (remember) {
         localStorage.setItem("user", JSON.stringify(response));
       } else {
@@ -87,98 +99,140 @@ function App() {
 
       return;
     } else {
-      return () => {};
-    }
-  }, [login, isLoggedIn]);
+      const getAllOrders = async () => {
+        const get = await fetch(
+          "http://127.0.0.1/eltwin_orders/api/api.php?type=getAllOrders"
+        );
+        const res = await get.json();
+        setOrders(res);
+        setUserOrders(res.filter((order) => order.initials === login.login));
 
-  console.log(login);
+        setIsLoading(false);
+      };
+      getAllOrders();
+      return;
+    }
+  }, [login, isLoggedIn, setOrders, setUserOrders]);
 
   return (
-    <Router>
-      <div className="App">
-        {isLoggedIn ? (
-          <div>
-            <Navbar user={login} logout={logout} />
-            <Switch>
-              <Route path="/" exact>
-                <Dashboard user={login} />
-              </Route>
-              <Route path="/form" exact>
-                <Form
-                  user={login}
-                  edit={false}
-                  key={window.location.pathname}
-                />
-              </Route>
-              <Route path="/form/:editId">
-                <Form user={login} edit={true} />
-              </Route>
-              <Route path="/orders">
-                <Orders user={login} statusy={status} />
-              </Route>
-              <Route path="/order/:id">
-                <Order user={login} statusy={status} />
-              </Route>
-            </Switch>
+    <>
+      {isLoading && !orders ? (
+        <Loading />
+      ) : (
+        <Router>
+          <div className="App">
+            {isLoggedIn && userOrders ? (
+              <div>
+                <Navbar user={login} logout={logout} />
+                <Switch>
+                  <Route path="/" exact>
+                    <Dashboard user={login} orders={userOrders} />
+                  </Route>
+                  <Route path="/form" exact>
+                    <Form
+                      user={login}
+                      edit={false}
+                      key={window.location.pathname}
+                    />
+                  </Route>
+                  <Route path="/form/:editId">
+                    <Form user={login} edit={true} />
+                  </Route>
+                  <Route path="/orders">
+                    <Orders user={login} statusy={status} />
+                  </Route>
+                  <Route path="/order/:id">
+                    <Order user={login} statusy={status} />
+                  </Route>
+                  <Route path="/confirm">
+                    <Confirm user={login} statusy={status} />
+                  </Route>
+                  <Route path="/cyclical">
+                    <Cyclical user={login} statusy={status} />
+                  </Route>
+                  <Route path="/company">
+                    <Company user={login} statusy={status} />
+                  </Route>
+                  <Route path="/payments">
+                    <Payment user={login} statusy={status} />
+                  </Route>
+                  <Route path="/recieve">
+                    <Recieve user={login} statusy={status} />
+                  </Route>
+                  <Route path="/users">
+                    <User user={login} statusy={status} />
+                  </Route>
+                </Switch>
+              </div>
+            ) : (
+              <div className="notLoggedIn">
+                <div className="loginBox shadow p-3">
+                  <h3>Zaloguj się!</h3>
+                  <hr />
+                  <form onSubmit={handleLogin}>
+                    <div className="mb-3">
+                      <label
+                        htmlFor="exampleInputEmail1"
+                        className="form-label"
+                      >
+                        Twoje inicjały
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="exampleInputEmail1"
+                        aria-describedby="emailHelp"
+                        onChange={handleLoginForm}
+                        name="loginForm"
+                        value={loginForm.loginForm}
+                      />
+                      <div id="emailHelp" className="form-text">
+                        Inicjały z eltwin
+                      </div>
+                    </div>
+                    <div className="mb-3">
+                      <label
+                        htmlFor="exampleInputPassword1"
+                        className="form-label"
+                      >
+                        Hasło
+                      </label>
+                      <input
+                        type="password"
+                        className="form-control"
+                        id="exampleInputPassword1"
+                        onChange={handleLoginForm}
+                        name="passForm"
+                        value={loginForm.passForm}
+                      />
+                    </div>
+                    <div className="mb-3 form-check">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        id="exampleCheck1"
+                        onChange={handleLoginForm}
+                        name="rememberForm"
+                        value={loginForm.rememberForm}
+                      />
+                      <label
+                        className="form-check-label"
+                        htmlFor="exampleCheck1"
+                      >
+                        Zapamiętaj mnie na tym urządzeniu
+                      </label>
+                    </div>
+                    <button type="submit" className="btn btn-primary">
+                      Zaloguj się
+                    </button>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="notLoggedIn">
-            <div className="loginBox shadow p-3">
-              <h3>Zaloguj się!</h3>
-              <hr />
-              <form onSubmit={handleLogin}>
-                <div className="mb-3">
-                  <label htmlFor="exampleInputEmail1" className="form-label">
-                    Twoje inicjały
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="exampleInputEmail1"
-                    aria-describedby="emailHelp"
-                    onChange={handleLoginForm}
-                    name="loginForm"
-                    value={loginForm.loginForm}
-                  />
-                  <div id="emailHelp" className="form-text">
-                    Inicjały z eltwin
-                  </div>
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="exampleInputPassword1" className="form-label">
-                    Hasło
-                  </label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    id="exampleInputPassword1"
-                    onChange={handleLoginForm}
-                    name="passForm"
-                    value={loginForm.passForm}
-                  />
-                </div>
-                <div className="mb-3 form-check">
-                  <input
-                    type="checkbox"
-                    className="form-check-input"
-                    id="exampleCheck1"
-                    onChange={handleLoginForm}
-                    name="rememberForm"
-                    value={loginForm.rememberForm}
-                  />
-                  <label className="form-check-label" htmlFor="exampleCheck1">
-                    Zapamiętaj mnie na tym urządzeniu
-                  </label>
-                </div>
-                <button type="submit" className="btn btn-primary">
-                  Zaloguj się
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
-      </div>
-    </Router>
+        </Router>
+      )}
+    </>
   );
 }
 

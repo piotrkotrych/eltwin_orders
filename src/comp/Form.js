@@ -8,6 +8,8 @@ function Form({ user, edit }) {
     dzial: "",
     cel: "",
     firma: "",
+    firma_id: null,
+    nip: "",
     kontakt_osoba: "",
     kontakt_email: "",
     kontakt_telefon: "",
@@ -16,7 +18,7 @@ function Form({ user, edit }) {
         id: null,
         indeks: "",
         nazwa: "",
-        ilosc: null,
+        ilosc: "",
         jednostka: "",
         link: "",
         cena: "",
@@ -24,6 +26,7 @@ function Form({ user, edit }) {
         uwagi: "",
       },
     ],
+    waluta: "PLN",
     files: null,
     ordered_by: user.name + " " + user.secondname,
     initials: user.login,
@@ -45,13 +48,14 @@ function Form({ user, edit }) {
     "litry",
     "mililitry",
   ]);
+  const [waluty] = useState(["PLN", "EUR", "DKK", "USD"]);
   const [formValues, setFormValues] = useState(emptyForm);
 
   useEffect(() => {
     if (isLoading) {
       const getRodzajeDzialy = async () => {
         const get = await fetch(
-          "http://10.47.8.28/eltwin_orders/api/api.php?type=getRodzajeDzialy"
+          "http://127.0.0.1/eltwin_orders/api/api.php?type=getRodzajeDzialy"
         );
         const res = await get.json();
         setRodzaje(res);
@@ -59,7 +63,7 @@ function Form({ user, edit }) {
         if (editId) {
           const editForm = async () => {
             const get = await fetch(
-              "http://10.47.8.28/eltwin_orders/api/api.php?type=editForm&id=" +
+              "http://127.0.0.1/eltwin_orders/api/api.php?type=editForm&id=" +
                 editId
             );
             const res = await get.json();
@@ -118,7 +122,7 @@ function Form({ user, edit }) {
           id: null,
           indeks: "",
           nazwa: "",
-          ilosc: null,
+          ilosc: "",
           jednostka: "",
           link: "",
           cena: "",
@@ -148,8 +152,10 @@ function Form({ user, edit }) {
 
         const formData = new FormData();
 
-        for (let i = 0; i < selectedFiles.length; i++) {
-          formData.append("file" + (i + 1), selectedFiles[i]);
+        if (selectedFiles) {
+          for (let i = 0; i < selectedFiles.length; i++) {
+            formData.append("file" + (i + 1), selectedFiles[i]);
+          }
         }
 
         const options = {
@@ -157,7 +163,7 @@ function Form({ user, edit }) {
           body: JSON.stringify(formValues),
         };
         const req = await fetch(
-          "http://10.47.8.28/eltwin_orders/api/api.php?type=postFormData",
+          "http://127.0.0.1/eltwin_orders/api/api.php?type=postFormData",
           options
         );
 
@@ -169,7 +175,7 @@ function Form({ user, edit }) {
           const options = { method: "POST", body: formData };
 
           const req = await fetch(
-            "http://localhost/eltwin_orders/api/api.php?type=uploadFiles&id=" +
+            "http://127.0.0.1/eltwin_orders/api/api.php?type=uploadFiles&id=" +
               id +
               "&user=" +
               user.login,
@@ -422,7 +428,47 @@ function Form({ user, edit }) {
                       <div className="form-text">Nazwa firmy...</div>
                     </div>
                   </div>
-                  <div className="col-md-3">
+                  <div className="col-md-2">
+                    <div className="form-group">
+                      <label htmlFor="#nip" className="form-label">
+                        NIP
+                      </label>
+                      <input
+                        type="text"
+                        name="nip"
+                        id="nip"
+                        className="form-control"
+                        value={formValues.nip}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="col-md-1">
+                    <div className="form-group">
+                      <label htmlFor="#waluta" className="form-label">
+                        Waluta
+                      </label>
+                      <select
+                        name="jednostka"
+                        id="jednostka"
+                        className="form-select"
+                        value={formValues.waluta}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value=""></option>
+                        {waluty.map((e, index) => {
+                          return (
+                            <option key={index} value={e}>
+                              {e}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="col-md-2">
                     <div className="form-group">
                       <label htmlFor="#kontakt_osoba" className="form-label">
                         Dane kontaktowe: osoba
@@ -627,7 +673,7 @@ function Form({ user, edit }) {
                               Cena netto
                             </label>
                             <input
-                              type="text"
+                              type="currency"
                               name="cena"
                               id="cena"
                               className="form-control"
@@ -646,7 +692,7 @@ function Form({ user, edit }) {
                               Koszt wysyłki
                             </label>
                             <input
-                              type="text"
+                              type="currency"
                               name="koszt_wysylki"
                               id="koszt_wysylki"
                               className="form-control"
