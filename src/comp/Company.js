@@ -18,6 +18,7 @@ function Company({ user }) {
           <h2 className="m-4">Lista dostawców</h2>
           <hr />
           {user.level >= 3 ? <CompanyAdd></CompanyAdd> : null}
+          <hr />
         </>
       ) : null}
     </div>
