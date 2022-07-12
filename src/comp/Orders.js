@@ -34,12 +34,7 @@ function Orders({ user, statusy }) {
   console.log(user.login);
   console.log(status);
 
-  function GlobalFilter({
-    preGlobalFilteredRows,
-    globalFilter,
-    setGlobalFilter,
-  }) {
-    const countRows = preGlobalFilteredRows.length;
+  function GlobalFilter({ globalFilter, setGlobalFilter }) {
     const [value, setValue] = useState(globalFilter);
     const onChange = useAsyncDebounce((value) => {
       setGlobalFilter(value || undefined);
@@ -52,7 +47,7 @@ function Orders({ user, statusy }) {
           setValue(e.target.value);
           onChange(e.target.value);
         }}
-        placeholder={`Szukaj w ${countRows} zamówieniach`}
+        placeholder={`Szukaj w ${orders.length} zamówieniach`}
         className="form-control"
       />
     );
@@ -256,7 +251,7 @@ function Orders({ user, statusy }) {
       },
       Cell: (row) => (
         <div className="">
-          <Link to={`/user/${row.value[1]}`}>{row.value}</Link>
+          <Link to={`/user/${row.value[1]}`}>{row.value[0]}</Link>
         </div>
       ),
     },
