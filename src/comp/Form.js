@@ -471,7 +471,7 @@ function Form({ user, edit }) {
                   <div className="col-md-2">
                     <div className="form-group">
                       <label htmlFor="#kontakt_osoba" className="form-label">
-                        Dane kontaktowe: osoba
+                        Osoba kontaktowa
                       </label>
                       <input
                         type="text"
