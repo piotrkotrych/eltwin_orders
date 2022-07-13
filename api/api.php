@@ -564,6 +564,83 @@ switch ($_GET['type']) {
 
     break;
 
+  case 'addNewCompany':
+
+    $data = (array) json_decode(file_get_contents('php://input'));
+
+
+
+    try {
+
+      //check if company exists in the database
+      $sql = $pdo->prepare("SELECT * FROM orders_company WHERE firma = ?");
+      $sql->execute([$data['firma']]);
+      $result = $sql->fetchAll();
+      $sql = null;
+      if (count($result) > 0) {
+        echo json_encode(['error' => 'Firma ' . $data['firma'] . ' już istnieje']);
+      } else {
+
+        $sql = $pdo->prepare("INSERT INTO orders_company (firma, nip, www, kontakt_osoba, kontakt_email, kontakt_telefon) VALUES (?,?,?,?,?, ?)");
+        $sql->execute([$data['firma'], $data['nip'], $data['www'], $data['kontakt_osoba'], $data['kontakt_email'], $data['kontakt_telefon']]);
+
+        // addLog($data['id'], "Zaakceptowano na pierwszym poziomie", $data['user']);
+        echo json_encode($data);
+        $sql = null;
+        $query = null;
+      }
+    } catch (PDOException $err) {
+      exit(http_response_code(500));
+    }
+
+    break;
+
+  case 'getAllCompanies':
+
+    try {
+      $sql = $pdo->prepare("SELECT * FROM orders_company");
+      $sql->execute();
+      $query = $sql->fetchAll(PDO::FETCH_ASSOC);
+      echo json_encode($query);
+      $sql = null;
+    } catch (PDOException $err) {
+      exit(http_response_code(500));
+    }
+
+    break;
+
+
+  case 'deleteCompany':
+
+    $id = $_GET['id'];
+
+    try {
+      $sql = $pdo->prepare("DELETE FROM orders_company WHERE firma_id = ?");
+      $sql->execute([$id]);
+      echo json_encode(['success' => 'Usunięto firmę.']);
+      $sql = null;
+    } catch (PDOException $err) {
+      echo json_encode(['error' => 'Nie można usunąć firmy...']);
+    }
+
+
+    break;
+
+  case 'updateCompany':
+
+    $data = (array) json_decode(file_get_contents('php://input'));
+
+    try {
+      $sql = $pdo->prepare("UPDATE orders_company SET firma = ?, nip = ?, www = ?, kontakt_osoba = ?, kontakt_email = ?, kontakt_telefon = ? WHERE firma_id = ?");
+      $sql->execute([$data['firma'], $data['nip'], $data['www'], $data['kontakt_osoba'], $data['kontakt_email'], $data['kontakt_telefon'], $data['firma_id']]);
+      echo json_encode(['success' => 'Zaktualizowano firmę ' . $data['firma'] . '.']);
+      $sql = null;
+    } catch (PDOException $err) {
+      echo json_encode(['error' => 'Błąd. Nie można zaktualizować firmy...']);
+    }
+
+    break;
+
   default:
 
     echo "lol";
