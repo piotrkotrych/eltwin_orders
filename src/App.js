@@ -151,7 +151,7 @@ function App() {
                     <Cyclical user={login} statusy={status} />
                   </Route>
                   <Route path="/company">
-                    <Company user={login} statusy={status} />
+                    <Company user={login} statusy={status} orders={orders} />
                   </Route>
                   <Route path="/payments">
                     <Payment user={login} statusy={status} />
