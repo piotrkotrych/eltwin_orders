@@ -9,9 +9,9 @@ import {
   usePagination,
 } from "react-table";
 
-function CompanyOne({ companies, orders, status }) {
+function CompanyOne({ companies, orders, statusy }) {
   let { companyId } = useParams();
-
+  console.log(statusy);
   const [company, setCompany] = useState({});
   const [companyOrders, setCompanyOrders] = useState([]);
 
@@ -233,7 +233,7 @@ function CompanyOne({ companies, orders, status }) {
     {
       Header: "Status",
       accessor: "status",
-      Cell: (row) => <b>{status[row.value]}</b>,
+      Cell: (row) => <b>{statusy[row.value]}</b>,
     },
     {
       Header: "Dział",
@@ -250,7 +250,7 @@ function CompanyOne({ companies, orders, status }) {
       },
       Cell: (row) => (
         <div className="">
-          <Link to={`/user/${row.value[1]}`}>{row.value}</Link>
+          <Link to={`/user/${row.value[1]}`}>{row.value[0]}</Link>
         </div>
       ),
     },

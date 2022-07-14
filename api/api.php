@@ -102,9 +102,9 @@ switch ($_GET['type']) {
     }
 
     try {
-      $sql = $pdo->prepare("INSERT INTO orders_form (user_added, waluta, ordered_by, initials, email, rodzaj, dzial, cel, firma, kontakt_osoba, kontakt_email, kontakt_telefon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+      $sql = $pdo->prepare("INSERT INTO orders_form (user_added, waluta, ordered_by, initials, email, rodzaj, dzial, cel, firma, firma_id, www, nip, kontakt_osoba, kontakt_email, kontakt_telefon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-      $sql->execute([$data['initials'], $data['waluta'],  $data['ordered_by'], $data['initials'], $data['email'], $data['rodzaj'], $data['dzial'], $data['cel'], $data['firma'], $data['kontakt_osoba'], $data['kontakt_email'], $data['kontakt_telefon']]);
+      $sql->execute([$data['initials'], $data['waluta'],  $data['ordered_by'], $data['initials'], $data['email'], $data['rodzaj'], $data['dzial'], $data['cel'], $data['firma'], $data['firma_id'], $data['www'], $data['nip'], $data['kontakt_osoba'], $data['kontakt_email'], $data['kontakt_telefon']]);
 
       $id = $pdo->lastInsertId();
       // echo $id;

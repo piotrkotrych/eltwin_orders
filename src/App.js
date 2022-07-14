@@ -1,5 +1,5 @@
 import "./App.scss";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Navbar from "./comp/Navbar";
 import Dashboard from "./comp/Dashboard";
@@ -85,6 +85,17 @@ function App() {
     console.log("wylogowano");
   };
 
+  let getAllOrders = useCallback(async () => {
+    const get = await fetch(
+      "http://127.0.0.1/eltwin_orders/api/api.php?type=getAllOrders"
+    );
+    const res = await get.json();
+    setOrders(res);
+    setUserOrders(res.filter((order) => order.initials === login.login));
+
+    setIsLoading(false);
+  }, [login]);
+
   useEffect(() => {
     if (!isLoggedIn) {
       if (localStorage.getItem("user")) {
@@ -99,20 +110,10 @@ function App() {
 
       return;
     } else {
-      const getAllOrders = async () => {
-        const get = await fetch(
-          "http://127.0.0.1/eltwin_orders/api/api.php?type=getAllOrders"
-        );
-        const res = await get.json();
-        setOrders(res);
-        setUserOrders(res.filter((order) => order.initials === login.login));
-
-        setIsLoading(false);
-      };
       getAllOrders();
       return;
     }
-  }, [login, isLoggedIn, setOrders, setUserOrders]);
+  }, [login, isLoggedIn, setOrders, setUserOrders, getAllOrders]);
 
   return (
     <>
@@ -133,6 +134,7 @@ function App() {
                       user={login}
                       edit={false}
                       key={window.location.pathname}
+                      update={getAllOrders}
                     />
                   </Route>
                   <Route path="/form/:editId">

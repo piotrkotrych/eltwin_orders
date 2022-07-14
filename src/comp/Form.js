@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import NoAccess from "./NoAccess";
+import Creatable from "react-select/creatable";
 
-function Form({ user, edit }) {
+function Form({ user, edit, update }) {
   let emptyForm = {
     rodzaj: "",
     dzial: "",
@@ -10,6 +11,7 @@ function Form({ user, edit }) {
     firma: "",
     firma_id: null,
     nip: "",
+    www: "",
     kontakt_osoba: "",
     kontakt_email: "",
     kontakt_telefon: "",
@@ -50,6 +52,16 @@ function Form({ user, edit }) {
   ]);
   const [waluty] = useState(["PLN", "EUR", "DKK", "USD"]);
   const [formValues, setFormValues] = useState(emptyForm);
+  const [companies, setCompanies] = useState([]);
+  const [selectCompany, setSelectCompany] = useState({
+    firma: "",
+    firma_id: null,
+    nip: "",
+    www: "",
+    kontakt_osoba: "",
+    kontakt_email: "",
+    kontakt_telefon: "",
+  });
 
   useEffect(() => {
     if (isLoading) {
@@ -59,7 +71,6 @@ function Form({ user, edit }) {
         );
         const res = await get.json();
         setRodzaje(res);
-        console.log(rodzaje);
         if (editId) {
           const editForm = async () => {
             const get = await fetch(
@@ -88,12 +99,33 @@ function Form({ user, edit }) {
           setIsLoading(false);
         }
       };
+      const getCompanies = async () => {
+        // get companies  from db
+        const get = await fetch(
+          "http://127.0.0.1/eltwin_orders/api/api.php?type=getAllCompanies"
+        );
+        const res = await get.json();
+        if (res.length > 0) {
+          let comp = [];
+          res.forEach((company) => {
+            comp.push({
+              value: company,
+              label: company.firma,
+            });
+          });
+          setCompanies(comp);
+          console.log(companies);
+        } else {
+          setCompanies([]);
+        }
+      };
 
       getRodzajeDzialy();
+      getCompanies();
     } else {
       return () => {};
     }
-  }, [editId, isLoading, rodzaje, user.level, user.login]);
+  }, [editId, isLoading, rodzaje, user.level, user.login, companies]);
 
   const handleChange = (e) => {
     e.preventDefault();
@@ -199,6 +231,7 @@ function Form({ user, edit }) {
               link: "/order/" + id + "",
             });
             setFormValues(emptyForm);
+            update();
           } else {
             setAlert({
               text: "Błąd dodawania plików, skontaktuj się z pko@eltwin.com",
@@ -252,6 +285,7 @@ function Form({ user, edit }) {
             type: "success",
             link: "/order/" + editId + "",
           });
+          update();
         } else {
           setAlert({
             text: "Błąd aktualizacji formularza, skontaktuj się z pko@eltwin.com",
@@ -375,7 +409,7 @@ function Form({ user, edit }) {
                   <div className="col-md">
                     <div className="form-group">
                       <div className="form-group">
-                        <label htmlFor="#rodzaj" className="form-label">
+                        <label htmlFor="" className="form-label">
                           Zamawiający
                         </label>
                         <input
@@ -392,8 +426,6 @@ function Form({ user, edit }) {
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="row">
                   <div className="col-md">
                     <div className="form-group">
                       <label htmlFor="#cel" className="form-label">
@@ -411,7 +443,9 @@ function Form({ user, edit }) {
                       <div className="form-text">Dlaczego zamawiasz?</div>
                     </div>
                   </div>
-                  <div className="col-md">
+                </div>
+                <div className="row">
+                  {/* <div className="col-md">
                     <div className="form-group">
                       <label htmlFor="#firma" className="form-label">
                         Dostawca
@@ -423,6 +457,67 @@ function Form({ user, edit }) {
                         className="form-control"
                         value={formValues.firma}
                         onChange={handleChange}
+                        required
+                      />
+                      <div className="form-text">Nazwa firmy...</div>
+                    </div>
+                  </div> */}
+                  <div className="col-md">
+                    <div className="form-group">
+                      <label htmlFor="#firma" className="form-label">
+                        Dostawca
+                      </label>
+                      <Creatable
+                        isClearable={false}
+                        formatCreateLabel={(inputValue) =>
+                          `Dodaj firmę ${inputValue}`
+                        }
+                        name="firma"
+                        id="firma"
+                        // className="form-control"
+                        defaultValue={selectCompany.firma}
+                        onChange={(e) => {
+                          //check if e.value is an object
+                          if (
+                            e.value.firma_id !== undefined &&
+                            e.value.firma_id !== null
+                          ) {
+                            setSelectCompany(e.value);
+                            setFormValues({
+                              ...formValues,
+                              firma: e.value.firma,
+                              firma_id: e.value.firma_id,
+                              www: e.value.www,
+                              nip: e.value.nip,
+                              kontakt_email: e.value.kontakt_email,
+                              kontakt_telefon: e.value.kontakt_telefon,
+                              kontakt_osoba: e.value.kontakt_osoba,
+                            });
+                            console.log(formValues);
+                          } else {
+                            setSelectCompany({
+                              firma_id: null,
+                              firma: e.value,
+                              nip: "",
+                              www: "",
+                              kontakt_osoba: "",
+                              kontakt_email: "",
+                              kontakt_telefon: "",
+                            });
+                            setFormValues({
+                              ...formValues,
+                              firma: e.value,
+                              firma_id: null,
+                              www: "",
+                              nip: "",
+                              kontakt_email: "",
+                              kontakt_telefon: "",
+                              kontakt_osoba: "",
+                            });
+                            console.log(formValues);
+                          }
+                        }}
+                        options={companies}
                         required
                       />
                       <div className="form-text">Nazwa firmy...</div>
@@ -440,7 +535,21 @@ function Form({ user, edit }) {
                         className="form-control"
                         value={formValues.nip}
                         onChange={handleChange}
-                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="col-md-2">
+                    <div className="form-group">
+                      <label htmlFor="#www" className="form-label">
+                        Adres WWW
+                      </label>
+                      <input
+                        type="url"
+                        name="www"
+                        id="www"
+                        className="form-control"
+                        value={formValues.www}
+                        onChange={handleChange}
                       />
                     </div>
                   </div>

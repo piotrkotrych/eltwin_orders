@@ -4,7 +4,7 @@ import CompanyAdd from "./CompanyAdd";
 import CompanyAll from "./CompanyAll";
 import CompanyOne from "./CompanyOne";
 
-function Company({ user, orders, status }) {
+function Company({ user, orders, statusy }) {
   const [isLoading, setIsLoading] = useState(false);
   const [companies, setCompanies] = useState([]);
 
@@ -46,7 +46,7 @@ function Company({ user, orders, status }) {
             <CompanyOne
               companies={companies}
               orders={orders}
-              status={status}
+              statusy={statusy}
             ></CompanyOne>
           </>
         ) : null}
