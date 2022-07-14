@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { showModal, hideModal } from "../func/ModalToggle";
 
-function ManageFiles({ user, order }) {
+function ManageFiles({ user, order, updateLog }) {
   const modalRef = useRef();
 
   const [deleteFile, setDeleteFile] = useState({});
@@ -30,6 +30,7 @@ function ManageFiles({ user, order }) {
 
     if (response) {
       setDeleteFile({});
+      updateLog(order.id);
       hideModal(modalRef);
     }
   };
@@ -67,6 +68,7 @@ function ManageFiles({ user, order }) {
       inputFile.value = null;
 
       setAddFile();
+      updateLog(order.id);
     } else {
       alert("Wybierz plik...");
     }

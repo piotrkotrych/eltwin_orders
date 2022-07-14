@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import Loading from "./Loading";
 import ManageFiles from "./ManageFiles";
@@ -12,23 +12,22 @@ function Order({ user, statusy }) {
   const [order, setOrder] = useState();
   const [status] = useState(statusy);
 
+  let fetchOrder = useCallback(async (id) => {
+    const get = await fetch(
+      "http://localhost/eltwin_orders/api/api.php?type=getOrder&id=" + id
+    );
+    const res = await get.json();
+    if (res) {
+      setOrder(res[0]);
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (isLoading && id) {
-      console.log(id);
-      const getOrder = async () => {
-        const get = await fetch(
-          "http://localhost/eltwin_orders/api/api.php?type=getOrder&id=" + id
-        );
-        const res = await get.json();
-        if (res) {
-          setOrder(res[0]);
-          setIsLoading(false);
-        }
-      };
-      getOrder();
-      console.log(order);
+      fetchOrder(id);
     }
-  });
+  }, [fetchOrder, isLoading, id]);
 
   const updateStatus = (newStatus) => {
     console.log("Próba akceptacji samego siebie");
@@ -45,7 +44,7 @@ function Order({ user, statusy }) {
       };
 
       const options = { method: "POST", body: JSON.stringify(data) };
-      const update = async () => {
+      const updateStatus = async () => {
         const up = await fetch(
           "http://localhost/eltwin_orders/api/api.php?type=updateStatus",
           options
@@ -54,7 +53,7 @@ function Order({ user, statusy }) {
         console.log(res);
       };
 
-      update();
+      updateStatus();
     }
   };
 
@@ -123,7 +122,13 @@ function Order({ user, statusy }) {
             <div className="col-md mx-4">
               <dl className="row">
                 <dt className="col-sm">Nazwa firmy:</dt>
-                <dd className="col-sm">{order.firma}</dd>
+                {order.firma_id > 0 ? (
+                  <dd className="col-sm">
+                    <Link to={`/company/${order.firma_id}`}>{order.firma}</Link>
+                  </dd>
+                ) : (
+                  <dd className="col-sm">{order.firma}</dd>
+                )}
               </dl>
             </div>
           </div>
@@ -136,8 +141,12 @@ function Order({ user, statusy }) {
             </div>
             <div className="col-md mx-4">
               <dl className="row">
-                <dt className="col-sm">Kontakt:</dt>
-                <dd className="col-sm">{order.kontakt_osoba}</dd>
+                <dt className="col-sm">Adres WWW:</dt>
+                <dd className="col-sm">
+                  <a href={order.www} target="_blank" rel="noreferrer">
+                    {order.www}
+                  </a>
+                </dd>
               </dl>
             </div>
           </div>
@@ -150,8 +159,8 @@ function Order({ user, statusy }) {
             </div>
             <div className="col-md mx-4">
               <dl className="row">
-                <dt className="col-sm">Kontakt telefon:</dt>
-                <dd className="col-sm">{order.kontakt_telefon}</dd>
+                <dt className="col-sm">NIP:</dt>
+                <dd className="col-sm">{order.nip}</dd>
               </dl>
             </div>
           </div>
@@ -160,6 +169,34 @@ function Order({ user, statusy }) {
               <dl className="row">
                 <dt className="col-sm">Zamówienie dla:</dt>
                 <dd className="col-sm">{order.ordered_by}</dd>
+              </dl>
+            </div>
+            <div className="col-md mx-4">
+              <dl className="row">
+                <dt className="col-sm">Kontakt:</dt>
+                <dd className="col-sm">{order.kontakt_osoba}</dd>
+              </dl>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-md mx-4">
+              <dl className="row">
+                <dt className="col-sm">Zamówił:</dt>
+                <dd className="col-sm">{order.user_added}</dd>
+              </dl>
+            </div>
+            <div className="col-md mx-4">
+              <dl className="row">
+                <dt className="col-sm">Kontakt telefon:</dt>
+                <dd className="col-sm">{order.kontakt_telefon}</dd>
+              </dl>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-md mx-4">
+              <dl className="row">
+                <dt className="col-sm">Cel zakupu:</dt>
+                <dd className="col-sm">{order.cel}</dd>
               </dl>
             </div>
             <div className="col-md mx-4">
@@ -173,32 +210,14 @@ function Order({ user, statusy }) {
               </dl>
             </div>
           </div>
-          <div className="row">
-            <div className="col-md mx-4">
-              <dl className="row">
-                <dt className="col-sm">Zamówił:</dt>
-                <dd className="col-sm">{order.user_added}</dd>
-              </dl>
-            </div>
-            <div className="col-md mx-4"></div>
-          </div>
-          <div className="row">
-            <div className="col-md mx-4">
-              <dl className="row">
-                <dt className="col-sm">Cel zakupu:</dt>
-                <dd className="col-sm">{order.cel}</dd>
-              </dl>
-            </div>
-            <div className="col-md mx-4"></div>
-          </div>
           <hr />
           {user.level > 1 || user.login === order.initials ? (
-            <ManageFiles user={user} order={order} />
+            <ManageFiles user={user} order={order} updateLog={fetchOrder} />
           ) : null}
 
           {(order.status > 1 && user.login === order.initials) ||
           (order.status > 1 && user.level > 1) ? (
-            <ManageFaktury user={user} order={order} />
+            <ManageFaktury user={user} order={order} updateLog={fetchOrder} />
           ) : null}
 
           <OrderProdukty user={user} order={order} />
