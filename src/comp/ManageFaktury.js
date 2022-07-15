@@ -50,6 +50,8 @@ function ManageFaktury({ user, order, updateLog }) {
       const formData = new FormData();
 
       formData.append("faktura", addFile);
+      formData.append("firma_id", order.firma_id);
+      formData.append("nip", order.nip);
 
       const options = { method: "POST", body: formData };
 

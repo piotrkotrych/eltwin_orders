@@ -410,6 +410,12 @@ switch ($_GET['type']) {
     $parser = new \Smalot\PdfParser\Parser();
 
     $id = $_GET['id'];
+    $firma_id = $_POST['firma_id'];
+    $nip = $_POST['nip'];
+    //check if nip is null if it is then assign zero to it
+    if ($nip == 'null') {
+      $nip = null;
+    }
     $user = $_GET['user'];
     $time = date("Y-m-d H:i:s");
     $pro = intval($_GET['pro']);
@@ -426,8 +432,8 @@ switch ($_GET['type']) {
         if ($pro === 0) {
           if (move_uploaded_file($_FILES[$key]['tmp_name'], 'c:/wamp64/www/eltwin_orders/upload/' . $filename)) {
             try {
-              $sql = $pdo->prepare("INSERT INTO orders_invoice (form_id, rodzaj, user, filename, type, size) VALUES (?,?,?,?,?,?)");
-              $sql->execute([$id, $pro, $user, $filename, $type, $size]);
+              $sql = $pdo->prepare("INSERT INTO orders_invoice (form_id, rodzaj, user, filename, type, size, firma_id, nip) VALUES (?,?,?,?,?,?,?,?)");
+              $sql->execute([$id, $pro, $user, $filename, $type, $size, $firma_id, $nip]);
               $sql = null;
 
               $addedFiles[$key]['id'] = $pdo->lastInsertId();
@@ -465,8 +471,8 @@ switch ($_GET['type']) {
 
           if (move_uploaded_file($_FILES[$key]['tmp_name'], 'c:/wamp64/www/eltwin_orders/upload/' . $filename)) {
             try {
-              $sql = $pdo->prepare("INSERT INTO orders_invoice (form_id, rodzaj, user, filename, type, size) VALUES (?,?,?,?,?,?)");
-              $sql->execute([$id, $pro, $user, $filename, $type, $size]);
+              $sql = $pdo->prepare("INSERT INTO orders_invoice (form_id, rodzaj, user, filename, type, size, firma_id, nip) VALUES (?,?,?,?,?,?,?,?)");
+              $sql->execute([$id, $pro, $user, $filename, $type, $size, $firma_id, $nip]);
               $sql = null;
 
               // if($type == 'application/pdf'){
