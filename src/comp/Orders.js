@@ -68,8 +68,25 @@ function Orders({ user, statusy }) {
       ),
     },
     {
-      Header: "Firma",
-      accessor: "firma",
+      Header: "Dostawca",
+      accessor: (row) => {
+        if (row.firma_id) {
+          return [row.firma_id, row.firma];
+        } else {
+          return [0, row.firma];
+        }
+      },
+      Cell: (row) => {
+        if (row.value[0] === 0) {
+          return <div>{row.value[1]}</div>;
+        } else {
+          return (
+            <div>
+              <Link to={`/company/${row.value[0]}`}>{row.value[1]}</Link>
+            </div>
+          );
+        }
+      },
     },
     {
       Header: "Produkty",
