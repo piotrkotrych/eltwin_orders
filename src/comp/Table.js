@@ -70,7 +70,7 @@ export default function Table({ columns, data, title }) {
       <h2 className="m-4">{title}:</h2>
       <hr />
       <div className="row m-3">
-        <table {...getTableProps()} className="table">
+        <table {...getTableProps()} className="table table-bordered">
           <thead>
             {headerGroups.map((headerGroup) => (
               <tr {...headerGroup.getHeaderGroupProps()}>

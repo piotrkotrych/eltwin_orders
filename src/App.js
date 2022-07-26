@@ -144,10 +144,19 @@ function App() {
                     <Orders user={login} statusy={status} />
                   </Route>
                   <Route path="/order/:id">
-                    <Order user={login} statusy={status} />
+                    <Order
+                      user={login}
+                      statusy={status}
+                      update={getAllOrders}
+                    />
                   </Route>
                   <Route path="/confirm">
-                    <Confirm user={login} statusy={status} />
+                    <Confirm
+                      user={login}
+                      status={status}
+                      orders={orders}
+                      update={getAllOrders}
+                    />
                   </Route>
                   <Route path="/cyclical">
                     <Cyclical user={login} statusy={status} />

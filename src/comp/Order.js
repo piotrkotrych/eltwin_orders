@@ -6,7 +6,7 @@ import OrderLog from "./OrderLog";
 import ManageFaktury from "./ManageFaktury";
 import OrderProdukty from "./OrderProdukty";
 
-function Order({ user, statusy }) {
+function Order({ user, statusy, update }) {
   let { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [order, setOrder] = useState();
@@ -51,6 +51,7 @@ function Order({ user, statusy }) {
         );
         const res = await up.ok;
         console.log(res);
+        update();
       };
 
       updateStatus();

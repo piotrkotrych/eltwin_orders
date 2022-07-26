@@ -15,6 +15,10 @@ class ComposerStaticInit7b874bebbdf8688f19d01b7542a4da0d
         array (
             'Symfony\\Polyfill\\Mbstring\\' => 26,
         ),
+        'P' => 
+        array (
+            'PHPMailer\\PHPMailer\\' => 20,
+        ),
         'J' => 
         array (
             'JsonMachine\\' => 12,
@@ -25,6 +29,10 @@ class ComposerStaticInit7b874bebbdf8688f19d01b7542a4da0d
         'Symfony\\Polyfill\\Mbstring\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
+        ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
         'JsonMachine\\' => 
         array (
